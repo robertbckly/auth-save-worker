@@ -1,5 +1,5 @@
 export default {
-  async fetch() {
-    return new Response('Hello :-) 1234', { status: 200 });
+  async fetch(request: Request): Promise<Response> {
+    return new Response(`Hello :-) ${request.url}`, { status: 200 });
   },
 };
