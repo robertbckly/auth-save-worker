@@ -12,6 +12,7 @@ type Provider = {
     audience: string;
     emailSuffix: string;
     keyForEmail: string;
+    keyForUserID: string;
   };
 };
 
@@ -30,6 +31,7 @@ export const PROVIDERS = {
       audience: '316817011021-b176pu0pre4vjqlt0uiro9gr25gfbfce.apps.googleusercontent.com',
       emailSuffix: '@gmail.com',
       keyForEmail: 'email',
+      keyForUserID: 'sub',
     },
   },
 } as const satisfies Record<string, Provider>;
