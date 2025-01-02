@@ -1,21 +1,45 @@
+import { PROVIDERS } from './constants/providers';
+import { verifyGoogleJWT } from './verifiers/verifyGoogleJWT';
+
 const REQUIRED_METHOD = 'POST';
-const REQUIRED_PROTOCOL = 'https';
-const REQUIRED_LOCAL_HOSTNAME = 'localhost';
+const REQUIRED_PROTOCOL = 'https:';
 
 export default {
   async fetch(request) {
-    // Reject methods other than POST
+    // Reject unexpected methods
     if (request.method !== REQUIRED_METHOD) {
       return new Response('Method not allowed', { status: 405 });
     }
 
-    // Reject HTTP unless running locally
     const url = new URL(request.url);
-    if (url.protocol !== REQUIRED_PROTOCOL && url.hostname !== REQUIRED_LOCAL_HOSTNAME) {
+
+    // Reject anything but HTTPS
+    if (url.protocol !== REQUIRED_PROTOCOL) {
       return new Response('HTTPS required', { status: 403 });
     }
 
+    // Verify JWT ID-token depending on path
+    // and extract user ID
+    let userId: string | undefined;
+    try {
+      switch (url.pathname) {
+        case PROVIDERS.google.pathname:
+          userId = await verifyGoogleJWT(request);
+          break;
+        default:
+          break;
+      }
+    } catch {
+      // TODO: improve this; e.g. use 400 if CSRF check failed
+      return new Response('Uh oh :-(', { status: 500 });
+    }
+
     // Success
-    return new Response(`Hello :-) ${request.url}`, { status: 200 });
+    if (userId) {
+      return new Response(`Success :-) ${userId}`, { status: 200 });
+    }
+
+    // Not found
+    return new Response('Not found', { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

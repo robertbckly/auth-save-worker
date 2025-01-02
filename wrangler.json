@@ -1,5 +1,8 @@
 {
   "name": "auth-save-worker",
   "main": "src/index.ts",
-  "compatibility_date": "2024-12-18"
+  "compatibility_date": "2024-12-18",
+  "dev": {
+    "local_protocol": "https"
+  }
 }
