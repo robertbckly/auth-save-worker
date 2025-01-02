@@ -1,11 +1,12 @@
 import { parse } from 'cookie';
-import { PROVIDERS } from '../constants/providers';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { PROVIDERS } from '../constants/providers';
+import type { UserId } from '../types/user-id';
 
 const PROVIDER = PROVIDERS.google;
 const JWKS = createRemoteJWKSet(new URL(PROVIDER.jwt.urlForJWKS));
 
-export const verifyGoogleJWT = async (request: Request): Promise<string> => {
+export const verifyGoogleJWT = async (request: Request): Promise<UserId> => {
   const formData = await request.formData();
   const cookies = parse(request.headers.get('Cookie') || '');
 

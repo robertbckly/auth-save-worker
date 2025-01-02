@@ -1,4 +1,5 @@
 import { PROVIDERS } from './constants/providers';
+import type { UserId } from './types/user-id';
 import { verifyGoogleJWT } from './verifiers/verifyGoogleJWT';
 
 const REQUIRED_METHOD = 'POST';
@@ -20,7 +21,7 @@ export default {
 
     // Verify JWT ID-token depending on path
     // and extract user ID
-    let userId: string | undefined;
+    let userId: UserId | undefined;
     try {
       switch (url.pathname) {
         case PROVIDERS.google.pathname:
