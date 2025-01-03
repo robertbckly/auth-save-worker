@@ -52,7 +52,8 @@ export const handleCreateSession = async (
       headers: {
         Location: '/redirect',
         // TODO: check this & add additional properties like domain, path, etc.
-        'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly; SameSite=Strict`,
+        // 'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly; SameSite=Strict`,
+        'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly`,
       },
     });
   }

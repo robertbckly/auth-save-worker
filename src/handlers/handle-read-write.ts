@@ -30,7 +30,13 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
     }
   } catch {
     // Forbidden if no SessionID <-> UserID match found
-    return new Response('Forbidden', { status: 403 });
+    return new Response('Forbidden', {
+      status: 403,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://localhost:1234',
+        'Access-Control-Allow-Credentials': 'true',
+      },
+    });
   }
 
   // User is now authorised...
@@ -38,7 +44,13 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   if (method === 'GET') {
     const object = await env.bucket.get(userID);
     const text = await object?.text();
-    return new Response(text, { status: 200 });
+    return new Response(text, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://localhost:1234',
+        'Access-Control-Allow-Credentials': 'true',
+      },
+    });
   }
 
   if (method === 'PUT') {
