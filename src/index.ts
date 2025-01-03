@@ -1,9 +1,15 @@
 import { PROVIDERS } from './constants/providers';
 import type { UserId } from './types/user-id';
+import { createSessionID } from './utils/create-session-id';
 import { verifyGoogleJWT } from './verifiers/verifyGoogleJWT';
 
 const REQUIRED_METHOD = 'POST';
 const REQUIRED_PROTOCOL = 'https:';
+const SESSION_COOKIE = 'id';
+const REDIRECT_URL = 'https://localhost:1234';
+
+const inMemorySessionStore: Record<string, string> = {};
+const inMemoryObjectStore: Record<string, unknown> = {};
 
 export default {
   async fetch(request) {
@@ -37,7 +43,23 @@ export default {
 
     // Success
     if (userId) {
-      return new Response(`Success :-) ${userId}`, { status: 200 });
+      const sessionID = createSessionID();
+
+      inMemorySessionStore[sessionID] = userId;
+      console.log('SESSIONS');
+      console.log(inMemorySessionStore);
+
+      inMemoryObjectStore[userId] = 'super secret value';
+      console.log('OBJECTS');
+      console.log(inMemoryObjectStore);
+
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: REDIRECT_URL,
+          'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly; SameSite=Strict`,
+        },
+      });
     }
 
     // Not found
