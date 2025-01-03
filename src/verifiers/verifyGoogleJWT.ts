@@ -35,6 +35,8 @@ export const verifyGoogleJWT = async (request: Request): Promise<UserId> => {
     audience: PROVIDER.jwt.audience,
   });
 
+  // TODO check email verified property of JWT...
+
   // Verify Google is authoritative for account's email address
   const email = jwtPayload[PROVIDER.jwt.keyForEmail];
   if (typeof email !== 'string' || !email.endsWith(PROVIDER.jwt.emailSuffix)) {
