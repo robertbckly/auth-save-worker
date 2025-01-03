@@ -5,11 +5,19 @@
   "dev": {
     "local_protocol": "https"
   },
+
   "d1_databases": [
     {
       "binding": "db",
       "database_name": "auth-save",
       "database_id": "d4d2e9d5-01c7-4e9a-b7e4-5074d40f5b17"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "bucket",
+      "bucket_name": "example-bucket"
     }
   ]
 }
