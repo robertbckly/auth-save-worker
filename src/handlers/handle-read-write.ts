@@ -39,7 +39,7 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
     });
   }
 
-  // User is now authorised...
+  // User at `userID` is now authorised...
 
   if (method === 'GET') {
     const object = await env.bucket.get(userID);
