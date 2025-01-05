@@ -16,6 +16,16 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   const cookies = parse(request.headers.get('Cookie') || '');
   const sessionID = cookies[SESSION_COOKIE];
 
+  if (!sessionID) {
+    return new Response('Forbidden', {
+      status: 403,
+      headers: {
+        'Access-Control-Allow-Origin': APP_URL,
+        'Access-Control-Allow-Credentials': 'true',
+      },
+    });
+  }
+
   // Get user's ID by matching incoming session ID against session store
   let userID: UserID | undefined;
   try {
