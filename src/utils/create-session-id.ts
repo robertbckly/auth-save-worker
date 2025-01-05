@@ -1,6 +1,5 @@
+import { SESSION_ID_BYTES } from '../constants/config';
 import { findSessionID } from './find-session-id';
-
-const SESSION_ID_BYTES = 16; // 128-bits
 
 export const createSessionID = async (env: Env, _i: number = 0): Promise<string> => {
   // Limit to 8 attempts
