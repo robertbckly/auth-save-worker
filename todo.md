@@ -7,7 +7,7 @@
 - ~~bind an R2 instance for object storage~~
 - ~~read/write object on request~~
 - ~~read object in frontend app~~
-- solve issue of crossorigin cookie
-- check if intermediary route is how a cookie should be set in browser for this origin
-- handle session expiry (IMPORTANT)
+- cookie:
+  - investigate samesite / crossorigin
+  - handle session expiry (IMPORTANT)
 - decouple from authn providers
