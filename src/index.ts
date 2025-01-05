@@ -1,4 +1,4 @@
-import { APP_URL } from './constants/config';
+import { APP_URL, SET_COOKIE_PATH } from './constants/config';
 import { PROVIDERS } from './constants/providers';
 import { handleCreateSession } from './handlers/handle-create-session';
 import { handleReadWrite } from './handlers/handle-read-write';
@@ -14,13 +14,15 @@ export default {
 
     // Route request
     switch (url.pathname) {
+      case '/':
+        return await handleReadWrite(request, env);
       case PROVIDERS.google.pathname:
         return await handleCreateSession(url.pathname, request, env);
-      case '/redirect':
-        // Go back to app
+      case SET_COOKIE_PATH:
+        // Redirect back to app after cookie has been set for this origin
         return Response.redirect(APP_URL, 302);
       default:
-        return await handleReadWrite(request, env);
+        return new Response('Not found', { status: 404 });
     }
   },
 } satisfies ExportedHandler<Env>;

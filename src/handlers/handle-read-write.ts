@@ -1,5 +1,5 @@
 import { parse } from 'cookie';
-import { SESSION_COOKIE } from '../constants/config';
+import { APP_URL, SESSION_COOKIE } from '../constants/config';
 import type { UserID } from '../types/user-id';
 
 const VALID_METHODS = ['GET', 'PUT'] as const;
@@ -16,10 +16,9 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   const cookies = parse(request.headers.get('Cookie') || '');
   const sessionID = cookies[SESSION_COOKIE];
 
+  // Get user's ID by matching incoming session ID against session store
   let userID: UserID | undefined;
-
   try {
-    // Get `UserID` via matching `SessionID`
     const { results, success } = await env.db
       .prepare('SELECT UserId FROM UserSessions WHERE SessionID = ?')
       .bind(sessionID)
@@ -29,17 +28,17 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
       throw Error();
     }
   } catch {
-    // Forbidden if no SessionID <-> UserID match found
+    // Forbidden if no match found
     return new Response('Forbidden', {
       status: 403,
       headers: {
-        'Access-Control-Allow-Origin': 'https://localhost:1234',
+        'Access-Control-Allow-Origin': APP_URL,
         'Access-Control-Allow-Credentials': 'true',
       },
     });
   }
 
-  // User at `userID` is now authorised...
+  // User is now authorised to read/write their object...
 
   if (method === 'GET') {
     const object = await env.bucket.get(userID);
@@ -47,7 +46,7 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
     return new Response(text, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': 'https://localhost:1234',
+        'Access-Control-Allow-Origin': APP_URL,
         'Access-Control-Allow-Credentials': 'true',
       },
     });

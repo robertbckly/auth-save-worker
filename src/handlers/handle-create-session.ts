@@ -1,4 +1,4 @@
-import { SESSION_COOKIE } from '../constants/config';
+import { SET_COOKIE_PATH, SESSION_COOKIE } from '../constants/config';
 import { PROVIDERS } from '../constants/providers';
 import type { UserID } from '../types/user-id';
 import { createSessionID } from '../utils/create-session-id';
@@ -50,8 +50,8 @@ export const handleCreateSession = async (
     return new Response(null, {
       status: 302,
       headers: {
-        Location: '/redirect',
-        // TODO: check this & add additional properties like domain, path, etc.
+        Location: SET_COOKIE_PATH,
+        // TODO: add additional properties like domain, path, samesite, etc.
         // 'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly; SameSite=Strict`,
         'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly`,
       },
