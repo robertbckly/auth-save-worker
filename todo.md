@@ -11,3 +11,5 @@
   - investigate samesite / crossorigin
   - handle session expiry (IMPORTANT)
 - decouple from authn providers
+- write tests (use vite)
+- add ci/cd stuff instead of cli deploy
