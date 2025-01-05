@@ -1,12 +1,12 @@
 import { parse } from 'cookie';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { PROVIDERS } from '../constants/providers';
-import type { UserID } from '../types/user-id';
+import type { VerifierReturnType } from './verifier-return-type';
 
 const PROVIDER = PROVIDERS.google;
 const JWKS = createRemoteJWKSet(new URL(PROVIDER.jwt.urlForJWKS));
 
-export const verifyGoogleJWT = async (request: Request): Promise<UserID> => {
+export const verifyGoogleJWT = async (request: Request): Promise<VerifierReturnType> => {
   const formData = await request.formData();
   const cookies = parse(request.headers.get('Cookie') || '');
 
@@ -35,11 +35,15 @@ export const verifyGoogleJWT = async (request: Request): Promise<UserID> => {
     audience: PROVIDER.jwt.audience,
   });
 
-  // TODO check email verified property of JWT...
-
   // Verify Google is authoritative for account's email address
   const email = jwtPayload[PROVIDER.jwt.keyForEmail];
-  if (typeof email !== 'string' || !email.endsWith(PROVIDER.jwt.emailSuffix)) {
+  const emailVerified = jwtPayload[PROVIDER.jwt.keyForEmailVerified];
+  if (
+    typeof email !== 'string' ||
+    typeof emailVerified !== 'boolean' ||
+    !email.endsWith(PROVIDER.jwt.emailSuffix) ||
+    !emailVerified
+  ) {
     throw Error();
   }
 
@@ -49,5 +53,7 @@ export const verifyGoogleJWT = async (request: Request): Promise<UserID> => {
     throw Error();
   }
 
-  return `${PROVIDER.prefix}--${userId}`;
+  return {
+    userID: `${PROVIDER.prefix}--${userId}`,
+  };
 };

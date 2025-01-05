@@ -2,14 +2,9 @@ import { parse } from 'cookie';
 import { APP_URL, SESSION_COOKIE } from '../constants/config';
 import type { UserID } from '../types/user-id';
 
-const VALID_METHODS = ['GET', 'PUT'] as const;
-
-const isValidMethod = (method: string): method is (typeof VALID_METHODS)[number] =>
-  (VALID_METHODS as Readonly<string[]>).includes(method);
-
 export const handleReadWrite = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
-  if (!isValidMethod(method)) {
+  if (method !== 'GET' && method !== 'PUT') {
     return new Response('Method not allowed', { status: 405 });
   }
 
@@ -17,8 +12,8 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   const sessionID = cookies[SESSION_COOKIE];
 
   if (!sessionID) {
-    return new Response('Forbidden', {
-      status: 403,
+    return new Response('Unauthorized', {
+      status: 401,
       headers: {
         'Access-Control-Allow-Origin': APP_URL,
         'Access-Control-Allow-Credentials': 'true',
@@ -38,9 +33,9 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
       throw Error();
     }
   } catch {
-    // Forbidden if no match found
-    return new Response('Forbidden', {
-      status: 403,
+    // Unauthorized if no match found
+    return new Response('Unauthorized', {
+      status: 401,
       headers: {
         'Access-Control-Allow-Origin': APP_URL,
         'Access-Control-Allow-Credentials': 'true',
