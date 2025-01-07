@@ -48,12 +48,12 @@ export const verifyGoogleJWT = async (request: Request): Promise<VerifierReturnT
   }
 
   // Extract user ID
-  const userId = jwtPayload[PROVIDER.jwt.keyForUserID];
+  const userId = jwtPayload[PROVIDER.jwt.keyForUserId];
   if (!userId) {
     throw Error();
   }
 
   return {
-    userID: `${PROVIDER.prefix}--${userId}`,
+    userId: `${PROVIDER.prefix}--${userId}`,
   };
 };

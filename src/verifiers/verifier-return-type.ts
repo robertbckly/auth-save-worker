@@ -1,3 +1,3 @@
-import type { UserID } from '../types/user-id';
+import type { UserId } from '../types/user-id';
 
-export type VerifierReturnType = { userID: UserID };
+export type VerifierReturnType = { userId: UserId };

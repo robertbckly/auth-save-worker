@@ -1,7 +1,8 @@
 import { SET_COOKIE_PATH, SESSION_COOKIE } from '../constants/config';
 import { PROVIDERS } from '../constants/providers';
-import type { UserID } from '../types/user-id';
-import { createSessionID } from '../utils/create-session-id';
+import { createSession } from '../data/db/create-session';
+import type { UserId } from '../types/user-id';
+import { createSessionId } from '../utils/create-session-id';
 import { verifyGoogleJWT } from '../verifiers/verify-google-jwt';
 
 export const handleCreateSession = async (
@@ -16,11 +17,11 @@ export const handleCreateSession = async (
 
   // Verify JWT ID-token depending on path,
   // and extract user's ID
-  let userID: UserID;
+  let userId: UserId;
   try {
     switch (incomingPathname) {
       case PROVIDERS.google.pathname:
-        userID = (await verifyGoogleJWT(request)).userID;
+        userId = (await verifyGoogleJWT(request)).userId;
         break;
       default:
         throw Error();
@@ -30,16 +31,10 @@ export const handleCreateSession = async (
   }
 
   // Create and store new session
-  let sessionID: string;
+  let sessionId: string;
   try {
-    sessionID = await createSessionID(env);
-    const { success } = await env.db
-      .prepare('INSERT INTO UserSessions (SessionID, UserID) VALUES (?, ?)')
-      .bind(sessionID, userID)
-      .run();
-    if (!success) {
-      throw Error();
-    }
+    sessionId = await createSessionId(env);
+    await createSession({ env, sessionId, userId });
   } catch {
     return new Response('Failed to create session', { status: 500 });
   }
@@ -50,8 +45,8 @@ export const handleCreateSession = async (
     headers: {
       Location: SET_COOKIE_PATH,
       // TODO: add additional properties like domain, path, samesite, etc.
-      // 'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly; SameSite=Strict`,
-      'Set-Cookie': `${SESSION_COOKIE}=${sessionID}; Secure; HttpOnly`,
+      // 'Set-Cookie': `${SESSION_COOKIE}=${sessionId}; Secure; HttpOnly; SameSite=Strict`,
+      'Set-Cookie': `${SESSION_COOKIE}=${sessionId}; Secure; HttpOnly`,
     },
   });
 };

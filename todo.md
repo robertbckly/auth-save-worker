@@ -14,3 +14,4 @@
 - decouple from authn providers
 - write tests (use vite)
 - add ci/cd stuff instead of cli deploy
+- speed up session db via index?

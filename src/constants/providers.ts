@@ -11,7 +11,7 @@ type Provider = {
     issuer: string;
     audience: string;
     emailSuffix: string;
-    keyForUserID: string;
+    keyForUserId: string;
     keyForEmail?: string;
     keyForEmailVerified?: string;
   };
@@ -31,7 +31,7 @@ export const PROVIDERS = {
       issuer: 'https://accounts.google.com',
       audience: '316817011021-b176pu0pre4vjqlt0uiro9gr25gfbfce.apps.googleusercontent.com',
       emailSuffix: '@gmail.com',
-      keyForUserID: 'sub',
+      keyForUserId: 'sub',
       keyForEmail: 'email',
       keyForEmailVerified: 'email_verified',
     },

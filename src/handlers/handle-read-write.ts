@@ -1,6 +1,8 @@
 import { parse } from 'cookie';
 import { APP_URL, SESSION_COOKIE } from '../constants/config';
-import type { UserID } from '../types/user-id';
+import type { UserId } from '../types/user-id';
+import { findUserIdBySessionId } from '../data/db/find-user-id-by-session-id';
+import { getObject, putObject } from '../data/object-store';
 
 export const handleReadWrite = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
@@ -9,9 +11,9 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   }
 
   const cookies = parse(request.headers.get('Cookie') || '');
-  const sessionID = cookies[SESSION_COOKIE];
+  const sessionId = cookies[SESSION_COOKIE];
 
-  if (!sessionID) {
+  if (!sessionId) {
     return new Response('Unauthorized', {
       status: 401,
       headers: {
@@ -21,15 +23,11 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
     });
   }
 
-  // Get user's ID by matching incoming session ID against session store
-  let userID: UserID | undefined;
+  // Get user's ID
+  let userId: UserId | null;
   try {
-    const { results, success } = await env.db
-      .prepare('SELECT UserId FROM UserSessions WHERE SessionID = ?')
-      .bind(sessionID)
-      .run();
-    userID = results[0]?.['UserID'] as UserID | undefined;
-    if (!success || !userID) {
+    userId = await findUserIdBySessionId({ env, sessionId });
+    if (!userId) {
       throw Error();
     }
   } catch {
@@ -46,7 +44,7 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
   // User is now authorised to read/write their object...
 
   if (method === 'GET') {
-    const object = await env.bucket.get(userID);
+    const object = await getObject({ env, key: userId });
     const text = await object?.text();
     return new Response(text, {
       status: 200,
@@ -59,7 +57,11 @@ export const handleReadWrite = async (request: Request, env: Env): Promise<Respo
 
   if (method === 'PUT') {
     const text = await request.text();
-    await env.bucket.put(userID, text);
+    await putObject({
+      env,
+      key: userId,
+      value: text,
+    });
     return new Response(null, { status: 200 });
   }
 
