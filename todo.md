@@ -7,7 +7,7 @@
 - ~~bind an R2 instance for object storage~~
 - ~~read/write object on request~~
 - ~~read object in frontend app~~
-- write similar find-user-id fn that also checks length of session id
+- ~~write similar find-user-id fn that also checks length of session id~~
 - cookie:
   - investigate samesite / crossorigin
   - handle session expiry (IMPORTANT)

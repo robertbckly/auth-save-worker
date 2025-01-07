@@ -2,7 +2,7 @@ import { parse } from 'cookie';
 import { APP_URL, SESSION_COOKIE } from '../constants/config';
 import type { UserId } from '../types/user-id';
 import { findUserIdBySessionId } from '../data/db/find-user-id-by-session-id';
-import { getObject, putObject } from '../data/object-store';
+import { getObject, putObject } from '../data/object/object-store';
 
 export const handleReadWrite = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
