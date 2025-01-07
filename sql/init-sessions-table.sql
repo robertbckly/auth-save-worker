@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS UserSessions;
 CREATE TABLE IF NOT EXISTS UserSessions (
-  SessionId TEXT PRIMARY KEY, 
-  UserId TEXT,
+  SessionId TEXT PRIMARY KEY NOT NULL UNIQUE, 
+  UserId TEXT NOT NULL,
   CHECK (LENGTH(SessionId) >= 32) -- 128-bit minimum
 );
