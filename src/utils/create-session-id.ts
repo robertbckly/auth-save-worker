@@ -1,5 +1,6 @@
 import { SESSION_ID_BYTES } from '../constants/config';
 import { findSessionById } from '../data/db/find-session-by-id';
+import { isValidSessionId } from './is-valid-session-id';
 
 export const createSessionId = async (env: Env, _i: number = 0): Promise<string> => {
   // Limit to 8 attempts
@@ -17,8 +18,8 @@ export const createSessionId = async (env: Env, _i: number = 0): Promise<string>
     throw Error();
   }
 
-  // Attempt again if collision found
-  if (await findSessionById({ env, sessionId })) {
+  // Attempt again if collision found or invalid (somehow)
+  if ((await findSessionById({ env, sessionId })) || !isValidSessionId(sessionId)) {
     return await createSessionId(env, _i + 1);
   } else {
     return sessionId;

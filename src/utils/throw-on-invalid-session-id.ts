@@ -1,7 +1,7 @@
-import { isSessionIdValid } from './is-session-id-valid';
+import { isValidSessionId } from './is-valid-session-id';
 
 export const throwOnInvalidSessionId = (sessionId: string) => {
-  if (!isSessionIdValid(sessionId)) {
+  if (!isValidSessionId(sessionId)) {
     throw Error();
   }
 };

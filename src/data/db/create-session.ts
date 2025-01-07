@@ -1,4 +1,5 @@
 import type { UserId } from '../../types/user-id';
+import { throwOnInvalidSessionId } from '../../utils/throw-on-invalid-session-id';
 
 type CreateSessionArgs = {
   env: Env;
@@ -11,6 +12,9 @@ export const createSession = async ({
   sessionId,
   userId,
 }: CreateSessionArgs): Promise<void> => {
+  // Validate first (overkill here, but better safe than sorry)
+  throwOnInvalidSessionId(sessionId);
+
   const { success } = await env.db
     .prepare('INSERT INTO UserSessions (SessionId, UserId) VALUES (?, ?)')
     .bind(sessionId, userId)
