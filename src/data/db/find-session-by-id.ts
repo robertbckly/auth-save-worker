@@ -1,19 +1,21 @@
-import { throwOnInvalidSessionId } from '../../utils/throw-on-invalid-session-id';
+import type { Session, SessionId } from '../../common/types/session';
+import { isSession } from '../../common/utils/is-session';
+import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
 
 type FindSessionByIdArgs = {
   env: Env;
-  sessionId: string;
+  sessionId: SessionId;
 };
 
 export const findSessionById = async ({
   env,
   sessionId,
-}: FindSessionByIdArgs): Promise<boolean> => {
+}: FindSessionByIdArgs): Promise<Session | null> => {
   // Validate first
   throwOnInvalidSessionId(sessionId);
 
   const { results, success } = await env.db
-    .prepare('SELECT UserId FROM UserSessions WHERE SessionId = ? LIMIT 1')
+    .prepare('SELECT SessionId, UserId FROM UserSessions WHERE SessionId = ? LIMIT 1')
     .bind(sessionId)
     .run();
 
@@ -21,5 +23,12 @@ export const findSessionById = async ({
     throw Error();
   }
 
-  return !!results[0]?.['UserId'];
+  const uncheckedSession = results[0];
+
+  if (!uncheckedSession || !isSession(uncheckedSession)) {
+    console.log(uncheckedSession);
+    return null;
+  }
+
+  return uncheckedSession;
 };

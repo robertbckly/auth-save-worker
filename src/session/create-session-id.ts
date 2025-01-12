@@ -1,8 +1,9 @@
-import { SESSION_ID_BYTES } from '../constants/config';
+import { SESSION_ID_BYTES } from '../common/constants/config';
+import type { SessionId } from '../common/types/session';
 import { findSessionById } from '../data/db/find-session-by-id';
 import { isValidSessionId } from './is-valid-session-id';
 
-export const createSessionId = async (env: Env, _i: number = 0): Promise<string> => {
+export const createSessionId = async (env: Env, _i: number = 0): Promise<SessionId> => {
   // Limit to 8 attempts
   if (_i >= 8) {
     throw Error();

@@ -1,6 +1,6 @@
 import { parse } from 'cookie';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { PROVIDERS } from '../constants/providers';
+import { PROVIDERS } from '../common/constants/providers';
 import type { VerifierReturnType } from './verifier-return-type';
 
 const PROVIDER = PROVIDERS.google;

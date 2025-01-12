@@ -1,44 +1,19 @@
-import { parse } from 'cookie';
-import { APP_URL, SESSION_COOKIE } from '../constants/config';
-import type { UserId } from '../types/user-id';
-import { findUserIdBySessionId } from '../data/db/find-user-id-by-session-id';
+import { APP_URL } from '../common/constants/config';
 import { getObject, putObject } from '../data/object/object-store';
+import { handleDisallowedMethod } from './handle-disallowed-method';
+import { authenticateSession } from '../session/handle-authenticate-session';
+import { handleUnauthorised } from './handle-unauthorised';
 
 export const handleReadWrite = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
-  if (method !== 'GET' && method !== 'PUT') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+  handleDisallowedMethod({ method, allowed: ['GET'] });
 
-  const cookies = parse(request.headers.get('Cookie') || '');
-  const sessionId = cookies[SESSION_COOKIE];
-
-  if (!sessionId) {
-    return new Response('Unauthorized', {
-      status: 401,
-      headers: {
-        'Access-Control-Allow-Origin': APP_URL,
-        'Access-Control-Allow-Credentials': 'true',
-      },
-    });
-  }
-
-  // Get user's ID
-  let userId: UserId | null;
+  // Auth & get user ID
+  let userId: string;
   try {
-    userId = await findUserIdBySessionId({ env, sessionId });
-    if (!userId) {
-      throw Error();
-    }
+    userId = (await authenticateSession({ env, request })).UserId;
   } catch {
-    // Unauthorized if no match found
-    return new Response('Unauthorized', {
-      status: 401,
-      headers: {
-        'Access-Control-Allow-Origin': APP_URL,
-        'Access-Control-Allow-Credentials': 'true',
-      },
-    });
+    return handleUnauthorised();
   }
 
   // User is now authorised to read/write their object...

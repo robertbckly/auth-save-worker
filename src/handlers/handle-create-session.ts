@@ -1,19 +1,22 @@
-import { SET_COOKIE_PATH, SESSION_COOKIE } from '../constants/config';
-import { PROVIDERS } from '../constants/providers';
+import { SET_COOKIE_PATH, SESSION_COOKIE_KEY } from '../common/constants/config';
+import { PROVIDERS } from '../common/constants/providers';
+import type { SessionId } from '../common/types/session';
+import type { UserId } from '../common/types/user-id';
 import { createSession } from '../data/db/create-session';
-import type { UserId } from '../types/user-id';
-import { createSessionId } from '../utils/create-session-id';
+import { createSessionId } from '../session/create-session-id';
+
 import { verifyGoogleJWT } from '../verifiers/verify-google-jwt';
+import { handleDisallowedMethod } from './handle-disallowed-method';
 
 export const handleCreateSession = async (
   incomingPathname: string,
   request: Request,
   env: Env
 ): Promise<Response> => {
-  // Reject unexpected methods
-  if (request.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+  handleDisallowedMethod({
+    method: request.method,
+    allowed: ['GET'],
+  });
 
   // Verify JWT ID-token depending on path,
   // and extract user's ID
@@ -31,7 +34,7 @@ export const handleCreateSession = async (
   }
 
   // Create and store new session
-  let sessionId: string;
+  let sessionId: SessionId;
   try {
     sessionId = await createSessionId(env);
     await createSession({ env, sessionId, userId });
@@ -46,7 +49,7 @@ export const handleCreateSession = async (
       Location: SET_COOKIE_PATH,
       // TODO: add additional properties like domain, path, samesite, etc.
       // 'Set-Cookie': `${SESSION_COOKIE}=${sessionId}; Secure; HttpOnly; SameSite=Strict`,
-      'Set-Cookie': `${SESSION_COOKIE}=${sessionId}; Secure; HttpOnly`,
+      'Set-Cookie': `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly`,
     },
   });
 };

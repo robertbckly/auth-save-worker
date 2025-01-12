@@ -1,4 +1,4 @@
-import { SESSION_ID_BYTES } from '../constants/config';
+import { SESSION_ID_BYTES } from '../common/constants/config';
 
 export const isValidSessionId = (sessionId: string): boolean => {
   // Length check: hex-based ID must have x2 chars per byte

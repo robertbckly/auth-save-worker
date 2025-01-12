@@ -1,6 +1,7 @@
-import { APP_URL, SET_COOKIE_PATH } from './constants/config';
-import { PROVIDERS } from './constants/providers';
+import { APP_URL, SET_COOKIE_PATH } from './common/constants/config';
+import { PROVIDERS } from './common/constants/providers';
 import { handleCreateSession } from './handlers/handle-create-session';
+import { handleReadSessions } from './handlers/handle-read-sessions';
 import { handleReadWrite } from './handlers/handle-read-write';
 
 export default {
@@ -16,6 +17,8 @@ export default {
     switch (url.pathname) {
       case '/':
         return await handleReadWrite(request, env);
+      case '/sessions':
+        return await handleReadSessions({ request, env });
       case PROVIDERS.google.pathname:
         return await handleCreateSession(url.pathname, request, env);
       case SET_COOKIE_PATH:

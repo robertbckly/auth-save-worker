@@ -1,9 +1,10 @@
-import type { UserId } from '../../types/user-id';
-import { throwOnInvalidSessionId } from '../../utils/throw-on-invalid-session-id';
+import type { SessionId } from '../../common/types/session';
+import type { UserId } from '../../common/types/user-id';
+import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
 
 type CreateSessionArgs = {
   env: Env;
-  sessionId: string;
+  sessionId: SessionId;
   userId: UserId;
 };
 
