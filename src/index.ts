@@ -2,7 +2,7 @@ import { APP_URL, SET_COOKIE_PATH } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
 import { handleCreateSession } from './handlers/handle-create-session';
 import { handleReadSessions } from './handlers/handle-read-sessions';
-import { handleReadWrite } from './handlers/handle-read-write';
+import { handleReadWriteObject } from './handlers/handle-read-write-object';
 
 export default {
   async fetch(request, env) {
@@ -16,7 +16,7 @@ export default {
     // Route request
     switch (url.pathname) {
       case '/':
-        return await handleReadWrite(request, env);
+        return await handleReadWriteObject(request, env);
       case '/sessions':
         return await handleReadSessions({ request, env });
       case PROVIDERS.google.pathname:

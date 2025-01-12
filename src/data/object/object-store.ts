@@ -3,14 +3,14 @@
   infrastructure / data architecture
  */
 
-type BaseArgs = { env: Env; key: string };
-type GetObjectArgs = BaseArgs;
-type PutObjectArgs = BaseArgs & { value: string };
+type BaseParams = { env: Env; key: string };
+type GetObjectParams = BaseParams;
+type PutObjectParams = BaseParams & { value: string };
 
-export const getObject = async ({ env, key }: GetObjectArgs) => {
+export const getObject = async ({ env, key }: GetObjectParams) => {
   return await env.bucket.get(key);
 };
 
-export const putObject = async ({ env, key, value }: PutObjectArgs) => {
+export const putObject = async ({ env, key, value }: PutObjectParams) => {
   return await env.bucket.put(key, value);
 };

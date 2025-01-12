@@ -5,15 +5,12 @@ import { authenticateSession } from '../session/handle-authenticate-session';
 import { handleDisallowedMethod } from './handle-disallowed-method';
 import { handleUnauthorised } from './handle-unauthorised';
 
-type HandleReadSessionsParams = {
+type Params = {
   request: Request;
   env: Env;
 };
 
-export const handleReadSessions = async ({
-  env,
-  request,
-}: HandleReadSessionsParams): Promise<Response> => {
+export const handleReadSessions = async ({ env, request }: Params): Promise<Response> => {
   handleDisallowedMethod({
     method: request.method,
     allowed: ['GET'],

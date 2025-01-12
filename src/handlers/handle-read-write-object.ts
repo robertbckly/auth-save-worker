@@ -4,7 +4,7 @@ import { handleDisallowedMethod } from './handle-disallowed-method';
 import { authenticateSession } from '../session/handle-authenticate-session';
 import { handleUnauthorised } from './handle-unauthorised';
 
-export const handleReadWrite = async (request: Request, env: Env): Promise<Response> => {
+export const handleReadWriteObject = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
   handleDisallowedMethod({ method, allowed: ['GET'] });
 

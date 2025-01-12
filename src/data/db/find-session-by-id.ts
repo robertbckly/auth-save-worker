@@ -2,15 +2,12 @@ import type { Session, SessionId } from '../../common/types/session';
 import { isSession } from '../../common/utils/is-session';
 import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
 
-type FindSessionByIdArgs = {
+type Params = {
   env: Env;
   sessionId: SessionId;
 };
 
-export const findSessionById = async ({
-  env,
-  sessionId,
-}: FindSessionByIdArgs): Promise<Session | null> => {
+export const findSessionById = async ({ env, sessionId }: Params): Promise<Session | null> => {
   // Validate first
   throwOnInvalidSessionId(sessionId);
 

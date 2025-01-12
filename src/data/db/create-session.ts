@@ -2,17 +2,13 @@ import type { SessionId } from '../../common/types/session';
 import type { UserId } from '../../common/types/user-id';
 import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
 
-type CreateSessionArgs = {
+type Params = {
   env: Env;
   sessionId: SessionId;
   userId: UserId;
 };
 
-export const createSession = async ({
-  env,
-  sessionId,
-  userId,
-}: CreateSessionArgs): Promise<void> => {
+export const createSession = async ({ env, sessionId, userId }: Params): Promise<void> => {
   // Validate first (overkill here, but better safe than sorry)
   throwOnInvalidSessionId(sessionId);
 
