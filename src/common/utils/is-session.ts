@@ -4,4 +4,6 @@ export const isSession = (object: object): object is Session =>
   ('UserId' satisfies keyof Session) in object &&
   typeof object.UserId === 'string' &&
   ('SessionId' satisfies keyof Session) in object &&
-  typeof object.SessionId === 'string';
+  typeof object.SessionId === 'string' &&
+  ('UserAgent' satisfies keyof Session) in object &&
+  typeof object.UserAgent === 'string';

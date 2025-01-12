@@ -1,7 +1,7 @@
 import { APP_URL } from '../common/constants/config';
 import { getObject, putObject } from '../data/object/object-store';
 import { handleDisallowedMethod } from './handle-disallowed-method';
-import { authenticateSession } from '../session/handle-authenticate-session';
+import { authenticateSession } from '../session/authenticate-session';
 import { handleUnauthorised } from './handle-unauthorised';
 
 export const handleReadWriteObject = async (request: Request, env: Env): Promise<Response> => {

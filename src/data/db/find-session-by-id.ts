@@ -12,7 +12,7 @@ export const findSessionById = async ({ env, sessionId }: Params): Promise<Sessi
   throwOnInvalidSessionId(sessionId);
 
   const { results, success } = await env.db
-    .prepare('SELECT SessionId, UserId FROM UserSessions WHERE SessionId = ? LIMIT 1')
+    .prepare('SELECT SessionId, UserId, UserAgent FROM UserSessions WHERE SessionId = ? LIMIT 1')
     .bind(sessionId)
     .run();
 
@@ -23,7 +23,6 @@ export const findSessionById = async ({ env, sessionId }: Params): Promise<Sessi
   const uncheckedSession = results[0];
 
   if (!uncheckedSession || !isSession(uncheckedSession)) {
-    console.log(uncheckedSession);
     return null;
   }
 

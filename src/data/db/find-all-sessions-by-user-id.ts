@@ -14,7 +14,7 @@ export const findAllSessionsByUserId = async ({ env, userId }: Params): Promise<
   }
 
   const { results, success } = await env.db
-    .prepare('SELECT SessionId, UserId FROM UserSessions WHERE UserId = ?')
+    .prepare('SELECT SessionId, UserId, UserAgent FROM UserSessions WHERE UserId = ?')
     .bind(userId)
     .run();
 

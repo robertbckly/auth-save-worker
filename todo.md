@@ -8,29 +8,33 @@
 - ~~read/write object on request~~
 - ~~read object in frontend app~~
 - ~~write similar find-user-id fn that also checks length of session id~~
+- ~~session listing for current user (new endpoint)~~
+- ~~COOKIE: fix samesite / crossorigin~~
 
 - AUTHN
   - decouple from authn providers
-  - session listing for current user (new endpoint)
 - PERF
   - speed up session db via index? or redis?
 - SECURITY
+
   - COOKIE
-    - limit number of sessions (x5; FIFO)?
-    - investigate samesite / crossorigin
-    - rolling session expiry (every request bumps the expiry time)
-    - periodic session ID rotation (request after 1h forces ID rotation)
-    - absolute timeout of 30 days (end of rolling expiry; authn required)
-    - TODO: figure out how this actually works...
-      - ChatGPT describes having a persistent "remember me" cookie
-      - think i'm getting confused between literal user session cookie that clears on browser close, and the general concept of sessions and cookies used to establish them
+
     - bind to other client info, e.g. user-agent... and reject + remove session on fail
-    - https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
+    - limit number of sessions (x4; FIFO)
+    - allow user to delete session (i.e. sign out from all devices)
+    - rolling renewal; rotation; absolute expiry
+    - prevent fixation: https://developer.mozilla.org/en-US/docs/Web/Security/Types_of_attacks#session_fixation
+    - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
+
   - OBJECT PAYLOAD
+
     - max size
     - encryption
     - xss prevention
     - antivirus approach required?
+
+  - CSP / XSS / CSRF / replay / ?
+
 - PIPELINE
   - add tests (use vite)
   - add ci/cd stuff instead of cli deploy

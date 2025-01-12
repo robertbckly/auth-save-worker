@@ -1,4 +1,8 @@
-import { SET_COOKIE_PATH, SESSION_COOKIE_KEY } from '../common/constants/config';
+import {
+  SET_COOKIE_PATH,
+  SESSION_COOKIE_KEY,
+  UNKNOWN_USER_AGENT,
+} from '../common/constants/config';
 import { PROVIDERS } from '../common/constants/providers';
 import type { SessionId } from '../common/types/session';
 import type { UserId } from '../common/types/user-id';
@@ -37,19 +41,19 @@ export const handleCreateSession = async (
   let sessionId: SessionId;
   try {
     sessionId = await createSessionId(env);
-    await createSession({ env, sessionId, userId });
+    const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
+    await createSession({ env, sessionId, userId, userAgent });
   } catch {
     return new Response('Failed to create session', { status: 500 });
   }
 
   // Redirect to same origin to set session ID cookie
+  // IMPORTANT: use `... Secure; HttpOnly; SameSite=Strict`
   return new Response(null, {
     status: 302,
     headers: {
       Location: SET_COOKIE_PATH,
-      // TODO: add additional properties like domain, path, samesite, etc.
-      // 'Set-Cookie': `${SESSION_COOKIE}=${sessionId}; Secure; HttpOnly; SameSite=Strict`,
-      'Set-Cookie': `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly`,
+      'Set-Cookie': `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly; SameSite=Strict`,
     },
   });
 };
