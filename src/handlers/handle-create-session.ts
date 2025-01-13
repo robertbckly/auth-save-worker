@@ -2,10 +2,12 @@ import {
   SET_COOKIE_PATH,
   SESSION_COOKIE_KEY,
   UNKNOWN_USER_AGENT,
+  CSRF_COOKIE_KEY,
 } from '../common/constants/config';
 import { PROVIDERS } from '../common/constants/providers';
 import type { SessionId } from '../common/types/session';
 import type { UserId } from '../common/types/user-id';
+import { createCsrfToken } from '../common/utils/csrf/create-csrf-token';
 import { SecureResponse } from '../common/utils/secure-response';
 import { createSession } from '../data/db/create-session';
 import { createSessionId } from '../session/create-session-id';
@@ -40,21 +42,37 @@ export const handleCreateSession = async (
 
   // Create and store new session
   let sessionId: SessionId;
+  let csrfToken: string;
   try {
     sessionId = await createSessionId(env);
+    csrfToken = await createCsrfToken({ env, sessionId });
     const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
     await createSession({ env, sessionId, userId, userAgent });
   } catch {
     return SecureResponse('Failed to create session', { status: 500 });
   }
 
-  // Redirect to same origin to set session ID cookie
+  // Redirect to same origin to set session ID & CSRF token cookies
   // IMPORTANT: use `... Secure; HttpOnly; SameSite=Strict`
-  return SecureResponse(null, {
+  // ...
+
+  // Create response
+  const response = SecureResponse(null, {
     status: 302,
-    headers: {
-      Location: SET_COOKIE_PATH,
-      'Set-Cookie': `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly; SameSite=Strict`,
-    },
+    headers: { Location: SET_COOKIE_PATH },
   });
+
+  // Append session ID cookie
+  response.headers.append(
+    'Set-Cookie',
+    `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly; SameSite=Strict`
+  );
+
+  // Append CSRF token cookie
+  response.headers.append(
+    'Set-Cookie',
+    `${CSRF_COOKIE_KEY}=${csrfToken}; Secure; HttpOnly; SameSite=Strict`
+  );
+
+  return response;
 };

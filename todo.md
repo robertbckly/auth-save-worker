@@ -12,6 +12,8 @@
 - ~~COOKIE: fix samesite / crossorigin~~
 - ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
 
+NEXT === use the CSRF token I've added creation code for
+
 - AUTHN
   - decouple from authn providers
 - PERF
@@ -19,6 +21,9 @@
 - SECURITY
   - COOKIE
     - anti-CSRF token
+      - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
+      - ^ must use private session ID
+      - must research how to expose token to JS
     - rolling renewal; rotation; absolute expiry NEXT UP <<<<
     - allow user to delete session (i.e. sign out from all devices)
     - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
