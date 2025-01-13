@@ -13,5 +13,16 @@ export const SecureResponse = (body?: Body, options?: Options) => {
   response.headers.set('Access-Control-Allow-Origin', APP_URL);
   response.headers.set('Access-Control-Allow-Credentials', 'true');
 
+  // CORB / MIME type
+  // (assuming API will only respond with JSON)
+  response.headers.set('Content-Type', 'application/json');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // CORP
+  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+
+  // No `Referer` (for the sake of it)
+  response.headers.set('Referrer-Policy', 'no-referrer');
+
   return response;
 };

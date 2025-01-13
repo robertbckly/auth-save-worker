@@ -18,6 +18,7 @@
   - speed up session db via index? or redis?
 - SECURITY
   - COOKIE
+    - anti-CSRF token
     - rolling renewal; rotation; absolute expiry NEXT UP <<<<
     - allow user to delete session (i.e. sign out from all devices)
     - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
