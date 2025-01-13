@@ -1,8 +1,8 @@
-import { APP_URL } from '../common/constants/config';
 import { getObject, putObject } from '../data/object/object-store';
 import { handleDisallowedMethod } from './handle-disallowed-method';
 import { authenticateSession } from '../session/authenticate-session';
 import { handleUnauthorised } from './handle-unauthorised';
+import { SecureResponse } from '../common/utils/secure-response';
 
 export const handleReadWriteObject = async (request: Request, env: Env): Promise<Response> => {
   const method = request.method;
@@ -21,13 +21,7 @@ export const handleReadWriteObject = async (request: Request, env: Env): Promise
   if (method === 'GET') {
     const object = await getObject({ env, key: userId });
     const text = await object?.text();
-    return new Response(text, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': APP_URL,
-        'Access-Control-Allow-Credentials': 'true',
-      },
-    });
+    return SecureResponse(text, { status: 200 });
   }
 
   if (method === 'PUT') {
@@ -37,8 +31,8 @@ export const handleReadWriteObject = async (request: Request, env: Env): Promise
       key: userId,
       value: text,
     });
-    return new Response(null, { status: 200 });
+    return SecureResponse(null, { status: 200 });
   }
 
-  return new Response('Something went wrong', { status: 500 });
+  return SecureResponse('Something went wrong', { status: 500 });
 };

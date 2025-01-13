@@ -10,31 +10,25 @@
 - ~~write similar find-user-id fn that also checks length of session id~~
 - ~~session listing for current user (new endpoint)~~
 - ~~COOKIE: fix samesite / crossorigin~~
+- ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
 
 - AUTHN
   - decouple from authn providers
 - PERF
   - speed up session db via index? or redis?
 - SECURITY
-
   - COOKIE
-
-    - bind to other client info, e.g. user-agent... and reject + remove session on fail
-    - limit number of sessions (x4; FIFO)
+    - rolling renewal; rotation; absolute expiry NEXT UP <<<<
     - allow user to delete session (i.e. sign out from all devices)
-    - rolling renewal; rotation; absolute expiry
-    - prevent fixation: https://developer.mozilla.org/en-US/docs/Web/Security/Types_of_attacks#session_fixation
     - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
-
   - OBJECT PAYLOAD
-
     - max size
     - encryption
     - xss prevention
     - antivirus approach required?
-
   - CSP / XSS / CSRF / replay / ?
-
+    - CSRF: https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
+    - fixation: https://developer.mozilla.org/en-US/docs/Web/Security/Types_of_attacks#session_fixation
 - PIPELINE
   - add tests (use vite)
   - add ci/cd stuff instead of cli deploy

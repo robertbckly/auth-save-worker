@@ -1,10 +1,3 @@
-import { APP_URL } from '../common/constants/config';
+import { SecureResponse } from '../common/utils/secure-response';
 
-export const handleUnauthorised = (): Response =>
-  new Response('Unauthorized', {
-    status: 401,
-    headers: {
-      'Access-Control-Allow-Origin': APP_URL,
-      'Access-Control-Allow-Credentials': 'true',
-    },
-  });
+export const handleUnauthorised = (): Response => SecureResponse('Unauthorized', { status: 401 });

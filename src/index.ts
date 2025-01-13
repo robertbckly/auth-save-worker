@@ -1,5 +1,6 @@
 import { APP_URL, SET_COOKIE_PATH } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
+import { SecureResponse } from './common/utils/secure-response';
 import { handleCreateSession } from './handlers/handle-create-session';
 import { handleReadSessions } from './handlers/handle-read-sessions';
 import { handleReadWriteObject } from './handlers/handle-read-write-object';
@@ -10,7 +11,7 @@ export default {
 
     // Reject anything but HTTPS
     if (url.protocol !== 'https:') {
-      return new Response('HTTPS required', { status: 403 });
+      return SecureResponse('HTTPS required', { status: 403 });
     }
 
     // Route request
@@ -25,7 +26,7 @@ export default {
         // Redirect back to app after cookie has been set for this origin
         return Response.redirect(APP_URL, 302);
       default:
-        return new Response('Not found', { status: 404 });
+        return SecureResponse('Not found', { status: 404 });
     }
   },
 } satisfies ExportedHandler<Env>;
