@@ -12,8 +12,15 @@
 - ~~COOKIE: fix samesite / crossorigin~~
 - ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
 
-NEXT === use the CSRF token I've added creation code for
-- regen it with every refresh token use (OWASP say don't both for every request)
+NEXT UP >>>>>
+
+- implement short-lived (1h) session cookie w/ long-lived (30d) refresh cookie
+  - add path to refresh cookie so it's only sent to specific /refresh endpoint
+  - client should know to proactively hit refresh endpoint to ensure seamless UX
+- regen csrf token with every refresh token use (OWASP say don't both for every request)
+- https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+
+^ >>>>>
 
 - AUTHN
   - decouple from authn providers
