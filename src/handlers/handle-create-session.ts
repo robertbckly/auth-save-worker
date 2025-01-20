@@ -41,13 +41,15 @@ export const handleCreateSession = async (
   }
 
   // Create and store new session
+  let privateId: SessionId;
   let sessionId: SessionId;
   let csrfToken: string;
   try {
-    sessionId = await createSessionId(env);
-    csrfToken = await createCsrfToken({ env, sessionId });
+    privateId = await createSessionId(env, 'private');
+    sessionId = await createSessionId(env, 'public');
+    csrfToken = await createCsrfToken({ env, privateSessionId: privateId });
     const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
-    await createSession({ env, sessionId, userId, userAgent });
+    await createSession({ env, privateId, sessionId, userId, userAgent });
   } catch {
     return SecureResponse('Failed to create session', { status: 500 });
   }

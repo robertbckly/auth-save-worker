@@ -3,13 +3,11 @@ import type { SessionId } from '../../types/session';
 
 type Params = {
   env: Env;
-  sessionId: SessionId;
+  privateSessionId: SessionId;
 };
 
-// TODO!!! >>> use private session ID, not the one sent to the client
-
 // Based on OWASP's Signed Double-Submit Cookie pattern
-export const createCsrfToken = async ({ env, sessionId }: Params): Promise<string> => {
+export const createCsrfToken = async ({ env, privateSessionId }: Params): Promise<string> => {
   const encoder = new TextEncoder();
   const rawKey = encoder.encode(env.SECRET_KEY_DEV);
 
@@ -21,7 +19,7 @@ export const createCsrfToken = async ({ env, sessionId }: Params): Promise<strin
   // Create token & encode
   // = random number concatenated with session ID to bind to user
   const unsignedToken = encoder.encode(
-    `${sessionId.length}!${sessionId}!${random.length}!${random}`
+    `${privateSessionId.length}!${privateSessionId}!${random.length}!${random}`
   );
 
   // Import HMAC key

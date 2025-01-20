@@ -13,6 +13,7 @@
 - ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
 
 NEXT === use the CSRF token I've added creation code for
+- regen it with every refresh token use (OWASP say don't both for every request)
 
 - AUTHN
   - decouple from authn providers
