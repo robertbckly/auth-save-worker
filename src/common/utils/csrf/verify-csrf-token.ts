@@ -1,5 +1,5 @@
 import { findSessionById } from '../../../data/db/find-session-by-id';
-import { CSRF_LEN_CHECK_BYTES } from '../../constants/config';
+import { CSRF_TOTAL_LENGTH } from '../../constants/config';
 import { createCsrfToken } from './create-csrf-token';
 
 type Params = {
@@ -19,9 +19,10 @@ export const verifyCsrfToken = async ({
   tokenFromCookie,
 }: Params) => {
   // Throw if token sized unexpectedly or tokens don't match
+  console.log(tokenFromBody.length);
   if (
-    tokenFromBody.length !== CSRF_LEN_CHECK_BYTES ||
-    tokenFromCookie.length !== CSRF_LEN_CHECK_BYTES ||
+    tokenFromBody.length !== CSRF_TOTAL_LENGTH ||
+    tokenFromCookie.length !== CSRF_TOTAL_LENGTH ||
     tokenFromBody !== tokenFromCookie
   ) {
     throw Error();

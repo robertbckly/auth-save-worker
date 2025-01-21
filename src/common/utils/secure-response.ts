@@ -12,6 +12,7 @@ export const SecureResponse = (body?: Body, options?: Options) => {
   // CORS
   response.headers.set('Access-Control-Allow-Origin', APP_URL);
   response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token');
 
   // CORB / MIME type
   // (assuming API will only respond with JSON)
