@@ -1,9 +1,11 @@
 import type { Session } from '../types/session';
 
 export const isSession = (object: object): object is Session =>
-  ('UserId' satisfies keyof Session) in object &&
-  typeof object.UserId === 'string' &&
+  ('PrivateId' satisfies keyof Session) in object &&
+  typeof object.PrivateId === 'string' &&
   ('SessionId' satisfies keyof Session) in object &&
   typeof object.SessionId === 'string' &&
+  ('UserId' satisfies keyof Session) in object &&
+  typeof object.UserId === 'string' &&
   ('UserAgent' satisfies keyof Session) in object &&
   typeof object.UserAgent === 'string';

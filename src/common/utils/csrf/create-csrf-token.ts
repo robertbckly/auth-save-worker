@@ -1,24 +1,38 @@
-import { CSRF_TOKEN_BYTES } from '../../constants/config';
+import { CSRF_RANDOM_BYTES } from '../../constants/config';
 import type { SessionId } from '../../types/session';
+import { toPaddedHexString } from '../to-padded-hex-string';
 
 type Params = {
   env: Env;
   privateSessionId: SessionId;
+  /**
+   * Optional; used for verifying
+   */
+  random?: string;
 };
 
 // Based on OWASP's Signed Double-Submit Cookie pattern
-export const createCsrfToken = async ({ env, privateSessionId }: Params): Promise<string> => {
+// "ensures that an attacker cannot create and inject their own, known,
+// CSRF token into the victim's authenticated session"
+export const createCsrfToken = async ({
+  env,
+  privateSessionId,
+  random: randomInput,
+}: Params): Promise<string> => {
   const encoder = new TextEncoder();
   const rawKey = encoder.encode(env.SECRET_KEY_DEV);
 
   // Create random hex number using appropriate crypto method
-  const array = new Uint8Array(CSRF_TOKEN_BYTES);
-  crypto.getRandomValues(array);
-  const random = Array.from(array, (v) => v.toString(16).padStart(2, '0')).join('');
+  let random = randomInput;
+  if (!random) {
+    const array = new Uint8Array(CSRF_RANDOM_BYTES);
+    crypto.getRandomValues(array);
+    random = toPaddedHexString(array);
+  }
 
   // Create token & encode
   // = random number concatenated with session ID to bind to user
-  const unsignedToken = encoder.encode(
+  const rawToken = encoder.encode(
     `${privateSessionId.length}!${privateSessionId}!${random.length}!${random}`
   );
 
@@ -34,9 +48,10 @@ export const createCsrfToken = async ({ env, privateSessionId }: Params): Promis
     ['sign']
   );
 
-  // Sign token
-  const signature = await crypto.subtle.sign('HMAC', key, unsignedToken);
+  // Hash token
+  const hashBuffer = await crypto.subtle.sign('HMAC', key, rawToken);
+  const hashHex = toPaddedHexString(hashBuffer);
 
-  // Return signed token as hex
-  return Array.from(new Uint8Array(signature), (v) => v.toString(16).padStart(2, '0')).join('');
+  // Return hashed token as hex
+  return `${hashHex}.${random}`;
 };

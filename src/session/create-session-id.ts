@@ -1,5 +1,6 @@
 import { SESSION_ID_BYTES } from '../common/constants/config';
 import type { SessionId } from '../common/types/session';
+import { toPaddedHexString } from '../common/utils/to-padded-hex-string';
 import { findSessionById } from '../data/db/find-session-by-id';
 import { findSessionPrivateId } from '../data/db/find-session-private-id';
 import { isValidSessionId } from './is-valid-session-id';
@@ -15,7 +16,7 @@ export const createSessionId = async (env: Env, type: Type, _i: number = 0): Pro
   // Create hex ID using appropriate crypto method
   const array = new Uint8Array(SESSION_ID_BYTES);
   crypto.getRandomValues(array);
-  const sessionId = Array.from(array, (v) => v.toString(16).padStart(2, '0')).join('');
+  const sessionId = toPaddedHexString(array);
 
   // Query for collision based on `type`
   let collision = false;

@@ -12,7 +12,9 @@ export const findSessionById = async ({ env, sessionId }: Params): Promise<Sessi
   throwOnInvalidSessionId(sessionId);
 
   const { results, success } = await env.db
-    .prepare('SELECT SessionId, UserId, UserAgent FROM UserSessions WHERE SessionId = ? LIMIT 1')
+    .prepare(
+      'SELECT PrivateId, SessionId, UserId, UserAgent FROM UserSessions WHERE SessionId = ? LIMIT 1'
+    )
     .bind(sessionId)
     .run();
 

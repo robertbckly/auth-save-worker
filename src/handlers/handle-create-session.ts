@@ -54,9 +54,8 @@ export const handleCreateSession = async (
     return SecureResponse('Failed to create session', { status: 500 });
   }
 
-  // Redirect to same origin to set session ID & CSRF token cookies
-  // IMPORTANT: use `... Secure; HttpOnly; SameSite=Strict`
-  // ...
+  // Redirect to same origin to set session ID & CSRF token cookies...
+  // (IMPORTANT: session token needs to use `Secure; HttpOnly; SameSite=Strict`)
 
   // Create response
   const response = SecureResponse(null, {
@@ -71,10 +70,8 @@ export const handleCreateSession = async (
   );
 
   // Append CSRF token cookie
-  response.headers.append(
-    'Set-Cookie',
-    `${CSRF_COOKIE_KEY}=${csrfToken}; Secure; HttpOnly; SameSite=Strict`
-  );
+  // (purposefully *not* using `HttpOnly`, as client needs access)
+  response.headers.append('Set-Cookie', `${CSRF_COOKIE_KEY}=${csrfToken}; Secure; SameSite=Strict`);
 
   return response;
 };
