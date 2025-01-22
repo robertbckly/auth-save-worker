@@ -14,11 +14,6 @@ export default {
       return SecureResponse('HTTPS required', { status: 403 });
     }
 
-    // TEMPORARY; TODO: REMOVE
-    if (request.method === 'OPTIONS') {
-      return SecureResponse();
-    }
-
     // Route request
     switch (url.pathname) {
       case '/':

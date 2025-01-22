@@ -1,5 +1,3 @@
-import { APP_URL } from '../constants/config';
-
 type Body = BodyInit | null;
 type Options = ResponseInit;
 
@@ -9,10 +7,10 @@ export const SecureResponse = (body?: Body, options?: Options) => {
   // HSTS
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
 
-  // CORS
-  response.headers.set('Access-Control-Allow-Origin', APP_URL);
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
-  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token');
+  // CORS (unnecessary now due to same origin)
+  // response.headers.set('Access-Control-Allow-Origin', APP_URL);
+  // response.headers.set('Access-Control-Allow-Credentials', 'true');
+  // response.headers.set('Access-Control-Allow-Headers', CSRF_HEADER);
 
   // CORB / MIME type
   // (assuming API will only respond with JSON)
