@@ -19,7 +19,6 @@ export const verifyCsrfToken = async ({
   tokenFromCookie,
 }: Params) => {
   // Throw if token sized unexpectedly or tokens don't match
-  console.log(tokenFromBody.length);
   if (
     tokenFromBody.length !== CSRF_TOTAL_LENGTH ||
     tokenFromCookie.length !== CSRF_TOTAL_LENGTH ||
@@ -37,7 +36,7 @@ export const verifyCsrfToken = async ({
     throw Error();
   }
 
-  // Get user's session private ID
+  // Get user's private session ID
   const session = await findSessionById({ env, sessionId });
   const privateSessionId = session?.PrivateId;
   if (!privateSessionId) {
@@ -48,7 +47,7 @@ export const verifyCsrfToken = async ({
   const verifierToken = await createCsrfToken({ env, privateSessionId, random });
 
   // Throw if verifier token doesn't match provided token
-  if (verifierToken !== token) {
+  if (verifierToken.length !== CSRF_TOTAL_LENGTH || verifierToken !== token) {
     throw Error();
   }
 
