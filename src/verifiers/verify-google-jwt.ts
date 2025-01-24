@@ -11,6 +11,7 @@ export const verifyGoogleJWT = async (request: Request): Promise<VerifierReturnT
   const cookies = parse(request.headers.get('Cookie') || '');
 
   // Verify CSRF double-submit-cookie pattern
+  let passedCsrfCheck = false;
   const bodyCSRF = formData.get(PROVIDER.csrf.keyInBody);
   const cookieCSRF = cookies[PROVIDER.csrf.keyInCookie];
   if (
@@ -22,6 +23,8 @@ export const verifyGoogleJWT = async (request: Request): Promise<VerifierReturnT
   ) {
     throw Error();
   }
+
+  passedCsrfCheck = true;
 
   // Extract JWT
   const jwt = formData.get(PROVIDER.jwt.keyInBody);
@@ -55,5 +58,6 @@ export const verifyGoogleJWT = async (request: Request): Promise<VerifierReturnT
 
   return {
     userId: `${PROVIDER.prefix}--${userId}`,
+    passedCsrfCheck,
   };
 };

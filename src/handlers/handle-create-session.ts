@@ -25,16 +25,25 @@ export const handleCreateSession = async (
     allowed: ['GET'],
   });
 
-  // Verify JWT ID-token depending on path,
-  // and extract user's ID
+  // Verify JWT ID-token depending on path & extract user's ID
+  // NOTE: ensure verifiers involve CSRF protection
   let userId: UserId;
+  let passedCsrfCheck = false;
   try {
     switch (incomingPathname) {
-      case PROVIDERS.google.pathname:
-        userId = (await verifyGoogleJWT(request)).userId;
+      case PROVIDERS.google.pathname: {
+        const result = await verifyGoogleJWT(request);
+        userId = result.userId;
+        passedCsrfCheck = result.passedCsrfCheck;
         break;
+      }
       default:
         throw Error();
+    }
+
+    // Fail safe
+    if (!passedCsrfCheck) {
+      throw Error();
     }
   } catch {
     return SecureResponse('Failed to authenticate', { status: 400 });
@@ -70,7 +79,7 @@ export const handleCreateSession = async (
   );
 
   // Append CSRF token cookie
-  // (purposefully *not* using `HttpOnly`, as client needs access)
+  // (Note: purposefully *not* using `HttpOnly`, as client needs access)
   response.headers.append('Set-Cookie', `${CSRF_COOKIE_KEY}=${csrfToken}; Secure; SameSite=Strict`);
 
   return response;
