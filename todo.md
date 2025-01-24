@@ -14,16 +14,16 @@
 
 NEXT UP >>>>>
 
-https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#disallowing-simple-requests
-https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#dealing-with-client-side-csrf-attacks-important
-
-- figure out how to do csrf when backend session doesn't yet exist !?
 - implement short-lived (1h) session cookie w/ long-lived (30d) refresh cookie
-  - add path to refresh cookie so it's only sent to specific /refresh endpoint
-  - client should know to proactively hit refresh endpoint to ensure seamless UX
-  - refresh causes rotation of both tokens
+- add path to refresh cookie so it's only sent to specific /refresh endpoint
+- client should know to proactively hit refresh endpoint to ensure seamless UX
+- refresh causes rotation of both tokens
 - regen csrf token with every refresh token use (OWASP say don't both for every request)
-  - how to expose the token to the client ??? maybe just local storage (research this)
+
+- CSRF:
+  https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#disallowing-simple-requests
+  https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#dealing-with-client-side-csrf-attacks-important
+
 - XSS: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
 
 ^ >>>>>
