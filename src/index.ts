@@ -1,9 +1,12 @@
-import { APP_URL, SET_COOKIE_PATH } from './common/constants/config';
+import { parse } from 'cookie';
+import { CSRF_COOKIE_KEY, CSRF_HEADER, SESSION_COOKIE_KEY } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
+import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
 import { SecureResponse } from './common/utils/secure-response';
 import { handleCreateSession } from './handlers/handle-create-session';
 import { handleReadSessions } from './handlers/handle-read-sessions';
 import { handleReadWriteObject } from './handlers/handle-read-write-object';
+import { killSession } from './session/kill-session';
 
 export default {
   async fetch(request, env) {
@@ -14,17 +17,43 @@ export default {
       return SecureResponse('HTTPS required', { status: 403 });
     }
 
-    // Route request
+    // Route any pre-session authentication routes
+    // (login-CSRF protection included within)
+    switch (url.pathname) {
+      case PROVIDERS.google.pathname:
+        return await handleCreateSession(url.pathname, request, env);
+    }
+
+    // Verify CSRF token
+    const cookies = parse(request.headers.get('Cookie') || '');
+    const sessionId = cookies[SESSION_COOKIE_KEY];
+    const csrfTokenCookie = cookies[CSRF_COOKIE_KEY];
+    const csrfTokenHeader = request.headers.get(CSRF_HEADER);
+    try {
+      if (!sessionId || !csrfTokenCookie || !csrfTokenHeader) {
+        throw Error();
+      }
+      await verifyCsrfToken({
+        env,
+        sessionId,
+        tokenFromBody: csrfTokenHeader,
+        tokenFromCookie: csrfTokenCookie,
+      });
+    } catch {
+      // Kill session on CSRF failure
+      // (causes CSRF failure on subsequent use)
+      if (sessionId) {
+        await killSession({ env, sessionId });
+      }
+      return SecureResponse('Forbidden', { status: 403 });
+    }
+
+    // Route request (authentication handled within)
     switch (url.pathname) {
       case '/':
         return await handleReadWriteObject(request, env);
       case '/sessions':
         return await handleReadSessions({ request, env });
-      case PROVIDERS.google.pathname:
-        return await handleCreateSession(url.pathname, request, env);
-      case SET_COOKIE_PATH:
-        // Redirect back to app after cookie has been set for this origin
-        return Response.redirect(APP_URL, 302);
       default:
         return SecureResponse('Not found', { status: 404 });
     }

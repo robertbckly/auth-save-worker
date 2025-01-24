@@ -1,8 +1,8 @@
 import {
-  SET_COOKIE_PATH,
   SESSION_COOKIE_KEY,
   UNKNOWN_USER_AGENT,
   CSRF_COOKIE_KEY,
+  APP_URL,
 } from '../common/constants/config';
 import { PROVIDERS } from '../common/constants/providers';
 import type { SessionId } from '../common/types/session';
@@ -69,7 +69,7 @@ export const handleCreateSession = async (
   // Create response
   const response = SecureResponse(null, {
     status: 302,
-    headers: { Location: SET_COOKIE_PATH },
+    headers: { Location: APP_URL },
   });
 
   // Append session ID cookie
