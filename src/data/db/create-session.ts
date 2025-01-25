@@ -5,6 +5,7 @@ type Params = {
   env: Env;
   privateId: string;
   sessionToken: string;
+  refreshToken: string;
   userId: UserId;
   userAgent: string;
 };
@@ -13,18 +14,20 @@ export const createSession = async ({
   env,
   privateId,
   sessionToken,
+  refreshToken,
   userId,
   userAgent,
 }: Params): Promise<void> => {
   // Validate first (overkill here, but better safe than sorry)
   throwOnInvalidSessionToken(privateId);
   throwOnInvalidSessionToken(sessionToken);
+  throwOnInvalidSessionToken(refreshToken);
 
   const { success } = await env.db
     .prepare(
-      'INSERT INTO UserSessions (PrivateId, SessionToken, UserId, UserAgent) VALUES (?, ?, ?, ?)'
+      'INSERT INTO UserSessions (PrivateId, SessionToken, RefreshToken, UserId, UserAgent) VALUES (?, ?, ?, ?, ?)'
     )
-    .bind(privateId, sessionToken, userId, userAgent)
+    .bind(privateId, sessionToken, refreshToken, userId, userAgent)
     .run();
   if (!success) {
     throw Error();

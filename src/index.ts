@@ -1,5 +1,4 @@
-import { parse } from 'cookie';
-import { CSRF_COOKIE_KEY, CSRF_HEADER, REFRESH_SESSION_PATH } from './common/constants/config';
+import { REFRESH_SESSION_PATH } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
 import { SecureResponse } from './common/responses/secure-response';
 import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
@@ -8,7 +7,7 @@ import { handleCreateSession } from './handlers/public/handle-create-session';
 import { handlePrivateRefreshSession } from './handlers/private/handle-private-refresh-session';
 import { handlePrivateReadSessions } from './handlers/private/handle-private-read-sessions';
 import { handlePrivateReadWriteObject } from './handlers/private/handle-private-read-write-object';
-import { authenticateSession } from './session/authenticate-session';
+import { authenticateSessionToken } from './session/authenticate-session';
 import { killSession } from './session/kill-session';
 import type { UserId } from './common/types/user-id';
 
@@ -25,7 +24,7 @@ export default {
     // (CSRF protection included within)
     switch (url.pathname) {
       case REFRESH_SESSION_PATH:
-        return handlePrivateRefreshSession({ env, request });
+        return await handlePrivateRefreshSession({ env, request });
       case PROVIDERS.google.pathname:
         return await handleCreateSession({ env, request, incomingPathname: url.pathname });
     }
@@ -34,7 +33,7 @@ export default {
     let userId: UserId;
     let privateSessionId: string;
     try {
-      const session = await authenticateSession({ env, request });
+      const session = await authenticateSessionToken({ env, request });
       userId = session.UserId;
       privateSessionId = session.PrivateId;
     } catch {
@@ -42,22 +41,13 @@ export default {
     }
 
     // Verify CSRF token
-    const cookies = parse(request.headers.get('Cookie') || '');
-    const csrfTokenCookie = cookies[CSRF_COOKIE_KEY];
-    const csrfTokenHeader = request.headers.get(CSRF_HEADER);
     try {
-      if (!csrfTokenCookie || !csrfTokenHeader) {
-        throw Error();
-      }
       const passedCsrfCheck: boolean = await verifyCsrfToken({
+        request,
         env,
         privateSessionId,
-        tokenFromBody: csrfTokenHeader,
-        tokenFromCookie: csrfTokenCookie,
       });
-      if (!passedCsrfCheck) {
-        throw Error();
-      }
+      if (!passedCsrfCheck) throw Error();
     } catch {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)

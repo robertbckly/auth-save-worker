@@ -4,21 +4,21 @@ import { throwOnInvalidSessionToken } from '../../session/throw-on-invalid-sessi
 
 type Params = {
   env: Env;
-  sessionToken: string;
+  refreshToken: string;
 };
 
-export const findSessionByToken = async ({
+export const findSessionByRefreshToken = async ({
   env,
-  sessionToken,
+  refreshToken,
 }: Params): Promise<Session | null> => {
   // Validate first
-  throwOnInvalidSessionToken(sessionToken);
+  throwOnInvalidSessionToken(refreshToken);
 
   const { results, success } = await env.db
     .prepare(
-      'SELECT PrivateId, SessionToken, RefreshToken, UserId, UserAgent FROM UserSessions WHERE SessionToken = ? LIMIT 1'
+      'SELECT PrivateId, SessionToken, RefreshToken, UserId, UserAgent FROM UserSessions WHERE RefreshToken = ? LIMIT 1'
     )
-    .bind(sessionToken)
+    .bind(refreshToken)
     .run();
 
   if (!success) {

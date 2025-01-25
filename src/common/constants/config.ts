@@ -1,8 +1,10 @@
 export const APP_URL = 'https://localhost:1234';
 export const REFRESH_SESSION_PATH = '/refresh-session';
 
-export const SESSION_COOKIE_KEY = '__Host-id'; // prefixed for security
-export const CSRF_COOKIE_KEY = '__Host-csrf'; // prefixed for security
+// Cookies prefixed with `__Host` for security
+export const SESSION_COOKIE_KEY = '__Host-id';
+export const REFRESH_COOKIE_KEY = '__Host-refresh';
+export const CSRF_COOKIE_KEY = '__Host-csrf';
 
 export const SESSION_COOKIE_MAX_AGE = 3600; // 1h in seconds
 export const REFRESH_COOKIE_MAX_AGE = 30 * 24 * 3600; // 30d in seconds
