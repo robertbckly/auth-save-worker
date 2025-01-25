@@ -6,19 +6,26 @@ import {
 } from '../../common/constants/config';
 import { PROVIDERS } from '../../common/constants/providers';
 import { methodNotAllowedResponse } from '../../common/responses/method-not-allowed-response';
-import type { SessionId } from '../../common/types/session';
 import type { UserId } from '../../common/types/user-id';
 import { createCsrfToken } from '../../common/utils/csrf/create-csrf-token';
 import { SecureResponse } from '../../common/responses/secure-response';
 import { createSession } from '../../data/db/create-session';
-import { createSessionId } from '../../session/create-session-id';
+import { createSessionToken } from '../../session/create-session-token';
 import { verifyGoogleJWT } from '../../verifiers/verify-google-jwt';
 
-export const handleCreateSession = async (
-  incomingPathname: string,
-  request: Request,
-  env: Env
-): Promise<Response> => {
+type Params = {
+  incomingPathname: string;
+  request: Request;
+  env: Env;
+};
+
+// Considered "public" because this is used before a session has been established,
+// i.e. the user hasn't been authenticated upon hitting this
+export const handleCreateSession = async ({
+  incomingPathname,
+  request,
+  env,
+}: Params): Promise<Response> => {
   if (request.method !== 'POST') {
     return methodNotAllowedResponse();
   }
@@ -48,32 +55,32 @@ export const handleCreateSession = async (
   }
 
   // Create and store new session
-  let privateId: SessionId;
-  let sessionId: SessionId;
+  let privateId: string;
+  let sessionToken: string;
   let csrfToken: string;
   try {
-    privateId = await createSessionId(env, 'private');
-    sessionId = await createSessionId(env, 'public');
+    privateId = await createSessionToken(env, 'private');
+    sessionToken = await createSessionToken(env, 'public');
     csrfToken = await createCsrfToken({ env, privateSessionId: privateId });
     const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
-    await createSession({ env, privateId, sessionId, userId, userAgent });
+    await createSession({ env, privateId, sessionToken, userId, userAgent });
   } catch {
     return new SecureResponse('Failed to create session', { status: 500 });
   }
 
-  // Redirect to same origin to set session ID & CSRF token cookies...
+  // Redirect and set session & CSRF token cookies...
   // (IMPORTANT: session token needs to use `Secure; HttpOnly; SameSite=Strict`)
 
   // Create response
-  const response = SecureResponse(null, {
+  const response = new SecureResponse(null, {
     status: 302,
     headers: { Location: APP_URL },
   });
 
-  // Append session ID cookie
+  // Append session token cookie
   response.headers.append(
     'Set-Cookie',
-    `${SESSION_COOKIE_KEY}=${sessionId}; Secure; HttpOnly; SameSite=Strict`
+    `${SESSION_COOKIE_KEY}=${sessionToken}; Secure; HttpOnly; SameSite=Strict`
   );
 
   // Append CSRF token cookie

@@ -1,6 +1,6 @@
 import { parse } from 'cookie';
 import { SESSION_COOKIE_KEY } from '../common/constants/config';
-import { findSessionById } from '../data/db/find-session-by-id';
+import { findSessionByToken } from '../data/db/find-session-by-token';
 import type { Session } from '../common/types/session';
 import { killSession } from './kill-session';
 
@@ -12,20 +12,20 @@ type Params = {
 export const authenticateSession = async ({ request, env }: Params): Promise<Session> => {
   const currentUserAgent = request.headers.get('user-agent');
   const cookies = parse(request.headers.get('Cookie') || '');
-  const sessionId = cookies[SESSION_COOKIE_KEY];
+  const sessionToken = cookies[SESSION_COOKIE_KEY];
 
-  if (!sessionId) {
+  if (!sessionToken) {
     throw Error();
   }
 
-  const session = await findSessionById({ env, sessionId });
+  const session = await findSessionByToken({ env, sessionToken });
 
   if (!session) {
     throw Error();
   }
 
   if (session.UserAgent !== currentUserAgent) {
-    killSession({ env, anySessionId: sessionId });
+    killSession({ env, identifier: sessionToken });
     throw Error();
   }
 

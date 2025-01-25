@@ -5,13 +5,12 @@ import { SecureResponse } from './common/responses/secure-response';
 import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
 import { unauthorisedResponse } from './common/responses/unauthorised-response';
 import { handleCreateSession } from './handlers/public/handle-create-session';
-import { handleRefreshSession } from './handlers/public/handle-refresh-session';
+import { handlePrivateRefreshSession } from './handlers/private/handle-private-refresh-session';
 import { handlePrivateReadSessions } from './handlers/private/handle-private-read-sessions';
 import { handlePrivateReadWriteObject } from './handlers/private/handle-private-read-write-object';
 import { authenticateSession } from './session/authenticate-session';
 import { killSession } from './session/kill-session';
 import type { UserId } from './common/types/user-id';
-import type { SessionId } from './common/types/session';
 
 export default {
   async fetch(request, env) {
@@ -22,18 +21,18 @@ export default {
       return new SecureResponse('HTTPS required', { status: 403 });
     }
 
-    // Route any public pre-session authentication requests
+    // Route any authentication requests
     // (CSRF protection included within)
     switch (url.pathname) {
       case REFRESH_SESSION_PATH:
-        return handleRefreshSession();
+        return handlePrivateRefreshSession({ env, request });
       case PROVIDERS.google.pathname:
-        return await handleCreateSession(url.pathname, request, env);
+        return await handleCreateSession({ env, request, incomingPathname: url.pathname });
     }
 
     // Authenticate session
     let userId: UserId;
-    let privateSessionId: SessionId;
+    let privateSessionId: string;
     try {
       const session = await authenticateSession({ env, request });
       userId = session.UserId;
@@ -62,11 +61,11 @@ export default {
     } catch {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)
-      await killSession({ env, anySessionId: privateSessionId });
+      await killSession({ env, identifier: privateSessionId });
       return new SecureResponse('Forbidden', { status: 403 });
     }
 
-    // Route any private requests
+    // Route primary private API requests
     // (after successful session authentication & anti-CSRF above)
     switch (url.pathname) {
       case '/':

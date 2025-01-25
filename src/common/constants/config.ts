@@ -4,7 +4,11 @@ export const REFRESH_SESSION_PATH = '/refresh-session';
 export const SESSION_COOKIE_KEY = '__Host-id'; // prefixed for security
 export const CSRF_COOKIE_KEY = '__Host-csrf'; // prefixed for security
 
-export const SESSION_ID_BYTES = 16; // 128-bit (IMPORTANT)
+export const SESSION_COOKIE_MAX_AGE = 3600; // 1h in seconds
+export const REFRESH_COOKIE_MAX_AGE = 30 * 24 * 3600; // 30d in seconds
+export const CSRF_COOKIE_MAX_AGE = SESSION_COOKIE_MAX_AGE; // same as session
+
+export const SESSION_TOKEN_BYTES = 16; // 128-bit (IMPORTANT)
 export const CSRF_RANDOM_BYTES = 2; // 16-bit (only to avoid same-second collision)
 
 // CSRF token length = (random + SHA-256) * 2 chars for hex + 1 for dot separator

@@ -1,21 +1,21 @@
-import { throwOnInvalidSessionId } from './throw-on-invalid-session-id';
+import { throwOnInvalidSessionToken } from './throw-on-invalid-session-token';
 
 type Params = {
   env: Env;
   /**
-   * Either public or private session ID works
+   * Private session ID or session token
    */
-  anySessionId: string;
+  identifier: string;
 };
 
-export const killSession = async ({ env, anySessionId }: Params): Promise<void> => {
+export const killSession = async ({ env, identifier }: Params): Promise<void> => {
   try {
     // Avoid hitting DB with invalid session ID
-    throwOnInvalidSessionId(anySessionId);
+    throwOnInvalidSessionToken(identifier);
     // Delete session
     await env.db
-      .prepare('DELETE FROM UserSessions WHERE PrivateId = ? OR SessionId = ? LIMIT 1')
-      .bind(anySessionId, anySessionId)
+      .prepare('DELETE FROM UserSessions WHERE PrivateId = ? OR SessionToken = ? LIMIT 1')
+      .bind(identifier, identifier)
       .run();
   } catch {
     // Do nothing

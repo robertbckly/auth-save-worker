@@ -1,16 +1,15 @@
-import type { SessionId } from '../../common/types/session';
-import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
+import { throwOnInvalidSessionToken } from '../../session/throw-on-invalid-session-token';
 
 type Params = {
   env: Env;
-  privateId: SessionId;
+  privateId: string;
 };
 
 const KEY = 'PrivateId';
 
 export const findSessionPrivateId = async ({ env, privateId }: Params): Promise<string | null> => {
   // Validate first
-  throwOnInvalidSessionId(privateId);
+  throwOnInvalidSessionToken(privateId);
 
   const { results, success } = await env.db
     .prepare('SELECT ? FROM UserSessions WHERE ? = ? LIMIT 1')

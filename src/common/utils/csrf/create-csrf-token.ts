@@ -1,10 +1,9 @@
 import { CSRF_RANDOM_BYTES } from '../../constants/config';
-import type { SessionId } from '../../types/session';
 import { toPaddedHexString } from '../to-padded-hex-string';
 
 type Params = {
   env: Env;
-  privateSessionId: SessionId;
+  privateSessionId: string;
   /**
    * Optional; used for verifying
    */
@@ -31,7 +30,7 @@ export const createCsrfToken = async ({
   }
 
   // Create token & encode
-  // = random number concatenated with session ID to bind to user
+  // = random number concatenated with private session ID to bind to user
   const rawToken = encoder.encode(
     `${privateSessionId.length}!${privateSessionId}!${random.length}!${random}`
   );

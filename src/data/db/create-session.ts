@@ -1,11 +1,10 @@
-import type { SessionId } from '../../common/types/session';
 import type { UserId } from '../../common/types/user-id';
-import { throwOnInvalidSessionId } from '../../session/throw-on-invalid-session-id';
+import { throwOnInvalidSessionToken } from '../../session/throw-on-invalid-session-token';
 
 type Params = {
   env: Env;
-  privateId: SessionId;
-  sessionId: SessionId;
+  privateId: string;
+  sessionToken: string;
   userId: UserId;
   userAgent: string;
 };
@@ -13,19 +12,19 @@ type Params = {
 export const createSession = async ({
   env,
   privateId,
-  sessionId,
+  sessionToken,
   userId,
   userAgent,
 }: Params): Promise<void> => {
   // Validate first (overkill here, but better safe than sorry)
-  throwOnInvalidSessionId(privateId);
-  throwOnInvalidSessionId(sessionId);
+  throwOnInvalidSessionToken(privateId);
+  throwOnInvalidSessionToken(sessionToken);
 
   const { success } = await env.db
     .prepare(
-      'INSERT INTO UserSessions (PrivateId, SessionId, UserId, UserAgent) VALUES (?, ?, ?, ?)'
+      'INSERT INTO UserSessions (PrivateId, SessionToken, UserId, UserAgent) VALUES (?, ?, ?, ?)'
     )
-    .bind(privateId, sessionId, userId, userAgent)
+    .bind(privateId, sessionToken, userId, userAgent)
     .run();
   if (!success) {
     throw Error();

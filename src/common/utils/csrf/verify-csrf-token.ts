@@ -1,10 +1,9 @@
 import { CSRF_TOTAL_LENGTH } from '../../constants/config';
-import type { SessionId } from '../../types/session';
 import { createCsrfToken } from './create-csrf-token';
 
 type Params = {
   env: Env;
-  privateSessionId: SessionId;
+  privateSessionId: string;
   tokenFromBody: string;
   tokenFromCookie: string;
 };

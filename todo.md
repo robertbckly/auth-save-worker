@@ -19,6 +19,7 @@ NEXT UP >>>>>
 - client should know to proactively hit refresh endpoint to ensure seamless UX
 - refresh causes rotation of both tokens
 - regen csrf token with every refresh token use (OWASP say don't both for every request)
+- MAYBE?: switch to hashing session ID before saving in DB... so can't be leaked
 
 - CSRF:
   https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#disallowing-simple-requests

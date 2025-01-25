@@ -1,10 +1,9 @@
 import type { UserId } from './user-id';
 
-export type SessionId = string;
-
 export type Session = {
-  PrivateId: SessionId;
-  SessionId: SessionId;
+  PrivateId: string;
+  SessionToken: string;
+  RefreshToken: string;
   UserId: UserId;
   UserAgent: string;
 };
