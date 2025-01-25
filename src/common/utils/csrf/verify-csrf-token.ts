@@ -17,7 +17,7 @@ export const verifyCsrfToken = async ({
   sessionId,
   tokenFromBody,
   tokenFromCookie,
-}: Params) => {
+}: Params): Promise<boolean> => {
   // Throw if token sized unexpectedly or tokens don't match
   if (
     tokenFromBody.length !== CSRF_TOTAL_LENGTH ||

@@ -3,10 +3,13 @@ import { CSRF_COOKIE_KEY, CSRF_HEADER, SESSION_COOKIE_KEY } from './common/const
 import { PROVIDERS } from './common/constants/providers';
 import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
 import { SecureResponse } from './common/utils/secure-response';
-import { handleCreateSession } from './handlers/handle-create-session';
-import { handleReadSessions } from './handlers/handle-read-sessions';
-import { handleReadWriteObject } from './handlers/handle-read-write-object';
+import { handleCreateSession } from './handlers/public/handle-create-session';
+import { handlePrivateReadSessions } from './handlers/private/handle-private-read-sessions';
+import { handlePrivateReadWriteObject } from './handlers/private/handle-private-read-write-object';
 import { killSession } from './session/kill-session';
+import type { UserId } from './common/types/user-id';
+import { authenticateSession } from './session/authenticate-session';
+import { handleUnauthorised } from './handlers/public/handle-unauthorised';
 
 export default {
   async fetch(request, env) {
@@ -17,7 +20,7 @@ export default {
       return SecureResponse('HTTPS required', { status: 403 });
     }
 
-    // Route any pre-session authentication routes
+    // Route any public pre-session authentication requests
     // (login-CSRF protection included within)
     switch (url.pathname) {
       case PROVIDERS.google.pathname:
@@ -33,12 +36,15 @@ export default {
       if (!sessionId || !csrfTokenCookie || !csrfTokenHeader) {
         throw Error();
       }
-      await verifyCsrfToken({
+      const passedCsrfCheck: boolean = await verifyCsrfToken({
         env,
         sessionId,
         tokenFromBody: csrfTokenHeader,
         tokenFromCookie: csrfTokenCookie,
       });
+      if (!passedCsrfCheck) {
+        throw Error();
+      }
     } catch {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)
@@ -48,12 +54,21 @@ export default {
       return SecureResponse('Forbidden', { status: 403 });
     }
 
-    // Route request (authentication handled within)
+    // Authenticate session
+    let userId: UserId;
+    try {
+      userId = (await authenticateSession({ env, request })).UserId;
+    } catch {
+      return handleUnauthorised();
+    }
+
+    // Route any private requests
+    // (after successful anti-CSRF & session authentication)
     switch (url.pathname) {
       case '/':
-        return await handleReadWriteObject(request, env);
+        return await handlePrivateReadWriteObject({ request, env, userId });
       case '/sessions':
-        return await handleReadSessions({ request, env });
+        return await handlePrivateReadSessions({ request, env, userId });
       default:
         return SecureResponse('Not found', { status: 404 });
     }

@@ -1,4 +1,4 @@
-import { SecureResponse } from '../common/utils/secure-response';
+import { SecureResponse } from '../../common/utils/secure-response';
 
 type Params = {
   method: Request['method'];
