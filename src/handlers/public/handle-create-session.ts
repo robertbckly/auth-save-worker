@@ -5,24 +5,23 @@ import {
   APP_URL,
 } from '../../common/constants/config';
 import { PROVIDERS } from '../../common/constants/providers';
+import { methodNotAllowedResponse } from '../../common/responses/method-not-allowed-response';
 import type { SessionId } from '../../common/types/session';
 import type { UserId } from '../../common/types/user-id';
 import { createCsrfToken } from '../../common/utils/csrf/create-csrf-token';
-import { SecureResponse } from '../../common/utils/secure-response';
+import { SecureResponse } from '../../common/responses/secure-response';
 import { createSession } from '../../data/db/create-session';
 import { createSessionId } from '../../session/create-session-id';
 import { verifyGoogleJWT } from '../../verifiers/verify-google-jwt';
-import { handleDisallowedMethod } from '../public/handle-disallowed-method';
 
 export const handleCreateSession = async (
   incomingPathname: string,
   request: Request,
   env: Env
 ): Promise<Response> => {
-  handleDisallowedMethod({
-    method: request.method,
-    allowed: ['GET'],
-  });
+  if (request.method !== 'POST') {
+    return methodNotAllowedResponse();
+  }
 
   // Verify JWT ID-token depending on path & extract user's ID
   // NOTE: ensure verifiers involve CSRF protection
@@ -45,7 +44,7 @@ export const handleCreateSession = async (
       throw Error();
     }
   } catch {
-    return SecureResponse('Failed to authenticate', { status: 400 });
+    return new SecureResponse('Failed to authenticate', { status: 400 });
   }
 
   // Create and store new session
@@ -59,7 +58,7 @@ export const handleCreateSession = async (
     const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
     await createSession({ env, privateId, sessionId, userId, userAgent });
   } catch {
-    return SecureResponse('Failed to create session', { status: 500 });
+    return new SecureResponse('Failed to create session', { status: 500 });
   }
 
   // Redirect to same origin to set session ID & CSRF token cookies...

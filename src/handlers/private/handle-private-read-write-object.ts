@@ -1,7 +1,7 @@
 import { getObject, putObject } from '../../data/object/object-store';
-import { handleDisallowedMethod } from '../public/handle-disallowed-method';
-import { SecureResponse } from '../../common/utils/secure-response';
+import { SecureResponse } from '../../common/responses/secure-response';
 import type { UserId } from '../../common/types/user-id';
+import { methodNotAllowedResponse } from '../../common/responses/method-not-allowed-response';
 
 type Params = {
   request: Request;
@@ -15,12 +15,11 @@ export const handlePrivateReadWriteObject = async ({
   userId,
 }: Params): Promise<Response> => {
   const method = request.method;
-  handleDisallowedMethod({ method, allowed: ['GET'] });
 
   if (method === 'GET') {
     const object = await getObject({ env, key: userId });
     const text = await object?.text();
-    return SecureResponse(text, { status: 200 });
+    return new SecureResponse(text, { status: 200 });
   }
 
   if (method === 'PUT') {
@@ -30,8 +29,8 @@ export const handlePrivateReadWriteObject = async ({
       key: userId,
       value: text,
     });
-    return SecureResponse(null, { status: 200 });
+    return new SecureResponse(null, { status: 200 });
   }
 
-  return SecureResponse('Something went wrong', { status: 500 });
+  return methodNotAllowedResponse();
 };

@@ -1,15 +1,16 @@
 import { parse } from 'cookie';
-import { CSRF_COOKIE_KEY, CSRF_HEADER } from './common/constants/config';
+import { CSRF_COOKIE_KEY, CSRF_HEADER, REFRESH_SESSION_PATH } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
+import { SecureResponse } from './common/responses/secure-response';
 import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
-import { SecureResponse } from './common/utils/secure-response';
+import { unauthorisedResponse } from './common/responses/unauthorised-response';
 import { handleCreateSession } from './handlers/public/handle-create-session';
+import { handleRefreshSession } from './handlers/public/handle-refresh-session';
 import { handlePrivateReadSessions } from './handlers/private/handle-private-read-sessions';
 import { handlePrivateReadWriteObject } from './handlers/private/handle-private-read-write-object';
+import { authenticateSession } from './session/authenticate-session';
 import { killSession } from './session/kill-session';
 import type { UserId } from './common/types/user-id';
-import { authenticateSession } from './session/authenticate-session';
-import { handleUnauthorised } from './handlers/public/handle-unauthorised';
 import type { SessionId } from './common/types/session';
 
 export default {
@@ -18,12 +19,14 @@ export default {
 
     // Reject anything but HTTPS
     if (url.protocol !== 'https:') {
-      return SecureResponse('HTTPS required', { status: 403 });
+      return new SecureResponse('HTTPS required', { status: 403 });
     }
 
     // Route any public pre-session authentication requests
-    // (login-CSRF protection included within)
+    // (CSRF protection included within)
     switch (url.pathname) {
+      case REFRESH_SESSION_PATH:
+        return handleRefreshSession();
       case PROVIDERS.google.pathname:
         return await handleCreateSession(url.pathname, request, env);
     }
@@ -36,7 +39,7 @@ export default {
       userId = session.UserId;
       privateSessionId = session.PrivateId;
     } catch {
-      return handleUnauthorised();
+      return unauthorisedResponse();
     }
 
     // Verify CSRF token
@@ -60,18 +63,18 @@ export default {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)
       await killSession({ env, anySessionId: privateSessionId });
-      return SecureResponse('Forbidden', { status: 403 });
+      return new SecureResponse('Forbidden', { status: 403 });
     }
 
     // Route any private requests
-    // (after successful session authentication & anti-CSRF)
+    // (after successful session authentication & anti-CSRF above)
     switch (url.pathname) {
       case '/':
         return await handlePrivateReadWriteObject({ request, env, userId });
       case '/sessions':
         return await handlePrivateReadSessions({ request, env, userId });
       default:
-        return SecureResponse('Not found', { status: 404 });
+        return new SecureResponse('Not found', { status: 404 });
     }
   },
 } satisfies ExportedHandler<Env>;
