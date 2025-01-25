@@ -1,5 +1,5 @@
 import { parse } from 'cookie';
-import { CSRF_COOKIE_KEY, CSRF_HEADER, SESSION_COOKIE_KEY } from './common/constants/config';
+import { CSRF_COOKIE_KEY, CSRF_HEADER } from './common/constants/config';
 import { PROVIDERS } from './common/constants/providers';
 import { verifyCsrfToken } from './common/utils/csrf/verify-csrf-token';
 import { SecureResponse } from './common/utils/secure-response';
@@ -10,6 +10,7 @@ import { killSession } from './session/kill-session';
 import type { UserId } from './common/types/user-id';
 import { authenticateSession } from './session/authenticate-session';
 import { handleUnauthorised } from './handlers/public/handle-unauthorised';
+import type { SessionId } from './common/types/session';
 
 export default {
   async fetch(request, env) {
@@ -27,18 +28,28 @@ export default {
         return await handleCreateSession(url.pathname, request, env);
     }
 
+    // Authenticate session
+    let userId: UserId;
+    let privateSessionId: SessionId;
+    try {
+      const session = await authenticateSession({ env, request });
+      userId = session.UserId;
+      privateSessionId = session.PrivateId;
+    } catch {
+      return handleUnauthorised();
+    }
+
     // Verify CSRF token
     const cookies = parse(request.headers.get('Cookie') || '');
-    const sessionId = cookies[SESSION_COOKIE_KEY];
     const csrfTokenCookie = cookies[CSRF_COOKIE_KEY];
     const csrfTokenHeader = request.headers.get(CSRF_HEADER);
     try {
-      if (!sessionId || !csrfTokenCookie || !csrfTokenHeader) {
+      if (!csrfTokenCookie || !csrfTokenHeader) {
         throw Error();
       }
       const passedCsrfCheck: boolean = await verifyCsrfToken({
         env,
-        sessionId,
+        privateSessionId,
         tokenFromBody: csrfTokenHeader,
         tokenFromCookie: csrfTokenCookie,
       });
@@ -48,22 +59,12 @@ export default {
     } catch {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)
-      if (sessionId) {
-        await killSession({ env, sessionId });
-      }
+      await killSession({ env, anySessionId: privateSessionId });
       return SecureResponse('Forbidden', { status: 403 });
     }
 
-    // Authenticate session
-    let userId: UserId;
-    try {
-      userId = (await authenticateSession({ env, request })).UserId;
-    } catch {
-      return handleUnauthorised();
-    }
-
     // Route any private requests
-    // (after successful anti-CSRF & session authentication)
+    // (after successful session authentication & anti-CSRF)
     switch (url.pathname) {
       case '/':
         return await handlePrivateReadWriteObject({ request, env, userId });

@@ -1,10 +1,10 @@
-import { findSessionById } from '../../../data/db/find-session-by-id';
 import { CSRF_TOTAL_LENGTH } from '../../constants/config';
+import type { SessionId } from '../../types/session';
 import { createCsrfToken } from './create-csrf-token';
 
 type Params = {
   env: Env;
-  sessionId: string;
+  privateSessionId: SessionId;
   tokenFromBody: string;
   tokenFromCookie: string;
 };
@@ -14,12 +14,13 @@ type Params = {
 // CSRF token into the victim's authenticated session"
 export const verifyCsrfToken = async ({
   env,
-  sessionId,
+  privateSessionId,
   tokenFromBody,
   tokenFromCookie,
 }: Params): Promise<boolean> => {
   // Throw if token sized unexpectedly or tokens don't match
   if (
+    !privateSessionId ||
     tokenFromBody.length !== CSRF_TOTAL_LENGTH ||
     tokenFromCookie.length !== CSRF_TOTAL_LENGTH ||
     tokenFromBody !== tokenFromCookie
@@ -33,13 +34,6 @@ export const verifyCsrfToken = async ({
   // Split HMAC hash and random number
   const [hash, random] = token.split('.');
   if (!hash || !random) {
-    throw Error();
-  }
-
-  // Get user's private session ID
-  const session = await findSessionById({ env, sessionId });
-  const privateSessionId = session?.PrivateId;
-  if (!privateSessionId) {
     throw Error();
   }
 

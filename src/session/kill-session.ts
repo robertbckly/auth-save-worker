@@ -2,17 +2,20 @@ import { throwOnInvalidSessionId } from './throw-on-invalid-session-id';
 
 type Params = {
   env: Env;
-  sessionId: string;
+  /**
+   * Either public or private session ID works
+   */
+  anySessionId: string;
 };
 
-export const killSession = async ({ env, sessionId }: Params): Promise<void> => {
+export const killSession = async ({ env, anySessionId }: Params): Promise<void> => {
   try {
     // Avoid hitting DB with invalid session ID
-    throwOnInvalidSessionId(sessionId);
+    throwOnInvalidSessionId(anySessionId);
     // Delete session
     await env.db
-      .prepare('DELETE FROM UserSessions WHERE SessionId = ? LIMIT 1')
-      .bind(sessionId)
+      .prepare('DELETE FROM UserSessions WHERE PrivateId = ? OR SessionId = ? LIMIT 1')
+      .bind(anySessionId, anySessionId)
       .run();
   } catch {
     // Do nothing
