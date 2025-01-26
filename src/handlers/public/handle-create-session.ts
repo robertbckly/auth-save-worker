@@ -1,13 +1,11 @@
-import { UNKNOWN_USER_AGENT, APP_URL } from '../../common/constants/config';
+import { APP_URL } from '../../common/constants/config';
 import { PROVIDERS } from '../../common/constants/providers';
 import { methodNotAllowedResponse } from '../../common/responses/method-not-allowed-response';
 import type { UserId } from '../../common/types/user-id';
-import { createCsrfToken } from '../../common/utils/csrf/create-csrf-token';
 import { SecureResponse } from '../../common/responses/secure-response';
-import { createSession } from '../../data/db/create-session';
-import { createSessionToken } from '../../session/create-session-token';
 import { verifyGoogleJWT } from '../../verifiers/verify-google-jwt';
 import { addAllTokensToResponse } from '../../session/add-all-tokens-to-response';
+import { createSession } from '../../session/create-session';
 
 type Params = {
   incomingPathname: string;
@@ -50,28 +48,17 @@ export const handleCreateSession = async ({
     return new SecureResponse('Failed to authenticate', { status: 400 });
   }
 
-  // Create and store new session
-  let sessionToken: string;
-  let refreshToken: string;
-  let csrfToken: string;
+  // Create new session and redirect with token cookies
   try {
-    const privateId = await createSessionToken(env, 'private');
-    sessionToken = await createSessionToken(env, 'public');
-    refreshToken = await createSessionToken(env, 'public');
-    csrfToken = await createCsrfToken({ env, privateSessionId: privateId });
-    const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
-    await createSession({ env, privateId, sessionToken, refreshToken, userId, userAgent });
+    const { sessionToken, refreshToken, csrfToken } = await createSession({ request, env, userId });
+    const response = addAllTokensToResponse({
+      response: new SecureResponse(null, { status: 302, headers: { Location: APP_URL } }),
+      sessionToken,
+      refreshToken,
+      csrfToken,
+    });
+    return response;
   } catch {
     return new SecureResponse('Failed to create session', { status: 500 });
   }
-
-  // Create redirect response with token cookies
-  const response = addAllTokensToResponse({
-    response: new SecureResponse(null, { status: 302, headers: { Location: APP_URL } }),
-    sessionToken,
-    refreshToken,
-    csrfToken,
-  });
-
-  return response;
 };

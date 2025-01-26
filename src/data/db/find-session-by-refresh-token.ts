@@ -16,7 +16,7 @@ export const findSessionByRefreshToken = async ({
 
   const { results, success } = await env.db
     .prepare(
-      'SELECT PrivateId, SessionToken, RefreshToken, UserId, UserAgent FROM UserSessions WHERE RefreshToken = ? LIMIT 1'
+      'SELECT PrivateId, SessionToken, RefreshToken, RefreshExpiry, UserId, UserAgent FROM UserSessions WHERE RefreshToken = ? LIMIT 1'
     )
     .bind(refreshToken)
     .run();

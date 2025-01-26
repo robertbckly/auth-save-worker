@@ -14,7 +14,8 @@
 
 NEXT UP >>>>>
 
-> check server-side timestamp for refresh hasn't been exceeded
+- implement refresh expiry
+- implement idle duration
 
 - implement short-lived (1h) session cookie w/ long-lived (30d) refresh cookie
 - add path to refresh cookie so it's only sent to specific /refresh endpoint
