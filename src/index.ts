@@ -15,6 +15,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Remove trailing slash -- TODO improve
+    const path = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : url.pathname;
+
     // Reject anything but HTTPS
     if (url.protocol !== 'https:') {
       return new SecureResponse('HTTPS required', { status: 403 });
@@ -22,7 +25,7 @@ export default {
 
     // Route any authentication requests
     // (CSRF protection included within)
-    switch (url.pathname) {
+    switch (path) {
       case REFRESH_SESSION_PATH:
         return await handlePrivateRefreshSession({ env, request });
       case PROVIDERS.google.pathname:
@@ -57,7 +60,7 @@ export default {
 
     // Route primary private API requests
     // (after successful session authentication & anti-CSRF above)
-    switch (url.pathname) {
+    switch (path) {
       case '/':
         return await handlePrivateReadWriteObject({ request, env, userId });
       case '/sessions':

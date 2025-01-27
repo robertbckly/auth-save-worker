@@ -14,10 +14,11 @@
 
 NEXT UP >>>>>
 
-- implement refresh expiry
-- implement idle duration
-
-- implement short-lived (1h) session cookie w/ long-lived (30d) refresh cookie
+- THIS: refresh token is sent with every request
+  - ^ can't scope to `path` without being at that path...
+  - PROBLEM!! == parcel proxy was prefixing the request with `/api`... meaning the browser never sent the cookie... fixed now
+- session and refresh tokens can be diff. lengths ??
+- implement idle duration -- not sure how ??
 - add path to refresh cookie so it's only sent to specific /refresh endpoint
 - client should know to proactively hit refresh endpoint to ensure seamless UX
 - refresh causes rotation of both tokens
