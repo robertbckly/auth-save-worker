@@ -5,6 +5,7 @@ export type Session = {
   SessionToken: string;
   RefreshToken: string;
   RefreshExpiry: number;
+  IdleExpiry: number;
   UserId: UserId;
   UserAgent: string;
 };

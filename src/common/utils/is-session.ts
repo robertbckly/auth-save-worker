@@ -9,6 +9,8 @@ export const isSession = (object: object): object is Session =>
   typeof object.RefreshToken === 'string' &&
   ('RefreshExpiry' satisfies keyof Session) in object &&
   typeof object.RefreshExpiry === 'number' &&
+  ('IdleExpiry' satisfies keyof Session) in object &&
+  typeof object.IdleExpiry === 'number' &&
   ('UserId' satisfies keyof Session) in object &&
   typeof object.UserId === 'string' &&
   ('UserAgent' satisfies keyof Session) in object &&

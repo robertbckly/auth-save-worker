@@ -11,18 +11,11 @@
 - ~~session listing for current user (new endpoint)~~
 - ~~COOKIE: fix samesite / crossorigin~~
 - ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
+- ~~fix parcel proxy issue causing path mismatch for refresh cookie~~
 
 NEXT UP >>>>>
 
-- THIS: refresh token is sent with every request
-  - ^ can't scope to `path` without being at that path...
-  - PROBLEM!! == parcel proxy was prefixing the request with `/api`... meaning the browser never sent the cookie... fixed now
-- session and refresh tokens can be diff. lengths ??
-- implement idle duration -- not sure how ??
-- add path to refresh cookie so it's only sent to specific /refresh endpoint
 - client should know to proactively hit refresh endpoint to ensure seamless UX
-- refresh causes rotation of both tokens
-- regen csrf token with every refresh token use (OWASP say don't both for every request)
 - MAYBE?: switch to hashing session ID before saving in DB... so can't be leaked
 
 - CSRF:

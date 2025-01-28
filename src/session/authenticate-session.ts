@@ -38,6 +38,11 @@ export const authenticateSessionToken = async ({
     throw Error('User agent changed');
   }
 
+  if (Date.now() > session.IdleExpiry) {
+    killSession({ env, identifier: token });
+    throw Error('Idle expiry exceeded');
+  }
+
   // Successfully authenticated session
   return session;
 };

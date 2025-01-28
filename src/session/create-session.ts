@@ -1,4 +1,8 @@
-import { REFRESH_COOKIE_MAX_AGE, UNKNOWN_USER_AGENT } from '../common/constants/config';
+import {
+  IDLE_TIMEOUT,
+  REFRESH_COOKIE_MAX_AGE,
+  UNKNOWN_USER_AGENT,
+} from '../common/constants/config';
 import type { UserId } from '../common/types/user-id';
 import { createCsrfToken } from '../common/utils/csrf/create-csrf-token';
 import { dbCreateSession } from '../data/db/db-create-session';
@@ -21,7 +25,7 @@ export const createSession = async ({
   request,
   env,
   userId,
-  refreshExpiry,
+  refreshExpiry: refreshExpiryInput,
 }: Params): Promise<Return> => {
   const privateId = await createSessionToken(env, 'private');
   const sessionToken = await createSessionToken(env, 'public');
@@ -29,20 +33,21 @@ export const createSession = async ({
   const csrfToken = await createCsrfToken({ env, privateSessionId: privateId });
   const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
 
-  let refreshExpiryTime = refreshExpiry;
-  if (!refreshExpiryTime) {
-    const now = new Date();
-    refreshExpiryTime = now.setSeconds(now.getSeconds() + REFRESH_COOKIE_MAX_AGE);
+  const refreshExpiry = refreshExpiryInput ? new Date(refreshExpiryInput) : new Date();
+  if (!refreshExpiryInput) {
+    refreshExpiry.setSeconds(refreshExpiry.getSeconds() + REFRESH_COOKIE_MAX_AGE);
   }
 
-  // refresh expiry = carried from old session = starts at 30d from initial creation
+  const idleExpiry = new Date();
+  idleExpiry.setSeconds(idleExpiry.getSeconds() + IDLE_TIMEOUT);
 
   await dbCreateSession({
     env,
     privateId,
     sessionToken,
     refreshToken,
-    refreshExpiry: refreshExpiryTime,
+    refreshExpiry: refreshExpiry.valueOf(),
+    idleExpiry: idleExpiry.valueOf(),
     userId,
     userAgent,
   });

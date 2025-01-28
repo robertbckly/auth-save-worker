@@ -16,7 +16,7 @@ export const findSessionByToken = async ({
 
   const { results, success } = await env.db
     .prepare(
-      'SELECT PrivateId, SessionToken, RefreshToken, RefreshExpiry, UserId, UserAgent FROM UserSessions WHERE SessionToken = ? LIMIT 1'
+      'SELECT PrivateId, SessionToken, RefreshToken, RefreshExpiry, IdleExpiry, UserId, UserAgent FROM UserSessions WHERE SessionToken = ? LIMIT 1'
     )
     .bind(sessionToken)
     .run();
