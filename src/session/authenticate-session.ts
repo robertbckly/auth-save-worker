@@ -1,9 +1,10 @@
 import { parse } from 'cookie';
-import { REFRESH_COOKIE_KEY, SESSION_COOKIE_KEY } from '../common/constants/config';
+import { IDLE_TIMEOUT, REFRESH_COOKIE_KEY, SESSION_COOKIE_KEY } from '../common/constants/config';
 import { findSessionByToken } from '../data/db/find-session-by-token';
 import type { Session } from '../common/types/session';
 import { killSession } from './kill-session';
 import { findSessionByRefreshToken } from '../data/db/find-session-by-refresh-token';
+import { updateSessionIdleExpiry } from '../data/db/update-session-idle-expiry';
 
 type Params = {
   request: Request;
@@ -43,6 +44,17 @@ export const authenticateSessionToken = async ({
     throw Error('Idle expiry exceeded');
   }
 
-  // Successfully authenticated session
+  // Success...
+
+  // Bump idle timeout
+  const idleExpiry = new Date();
+  idleExpiry.setSeconds(idleExpiry.getSeconds() + IDLE_TIMEOUT);
+  await updateSessionIdleExpiry({
+    env,
+    token,
+    idleExpiry: idleExpiry.valueOf(),
+  });
+
+  // Return authenticated session
   return session;
 };
