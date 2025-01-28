@@ -1,7 +1,7 @@
-import { SESSION_TOKEN_BYTES } from '../common/constants/config';
-import { toPaddedHexString } from '../common/utils/to-padded-hex-string';
-import { findSessionByToken } from '../data/db/find-session-by-token';
-import { findSessionPrivateId } from '../data/db/find-session-private-id';
+import { SESSION_TOKEN_BYTES } from '../../common/constants/config';
+import { toPaddedHexString } from '../../common/utils/to-padded-hex-string';
+import { findSessionByToken } from '../../data/db/find-session-by-token';
+import { findSessionPrivateId } from '../../data/db/find-session-private-id';
 import { isValidSessionToken } from './is-valid-session-token';
 
 type Type = 'public' | 'private';

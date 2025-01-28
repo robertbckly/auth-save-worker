@@ -1,4 +1,4 @@
-import { throwOnInvalidSessionToken } from '../../session/throw-on-invalid-session-token';
+import { throwOnInvalidSessionToken } from '../../session/token/throw-on-invalid-session-token';
 
 type Params = {
   env: Env;

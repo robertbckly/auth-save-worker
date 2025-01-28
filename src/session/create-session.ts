@@ -2,7 +2,7 @@ import { REFRESH_COOKIE_MAX_AGE, UNKNOWN_USER_AGENT } from '../common/constants/
 import type { UserId } from '../common/types/user-id';
 import { createCsrfToken } from '../common/utils/csrf/create-csrf-token';
 import { dbCreateSession } from '../data/db/db-create-session';
-import { createSessionToken } from './create-session-token';
+import { createSessionToken } from './token/create-session-token';
 
 type Params = {
   request: Request;

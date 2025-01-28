@@ -1,11 +1,10 @@
-import { APP_URL } from '../../common/constants/config';
 import { PROVIDERS } from '../../common/constants/providers';
 import { methodNotAllowedResponse } from '../../common/responses/method-not-allowed-response';
 import type { UserId } from '../../common/types/user-id';
 import { SecureResponse } from '../../common/responses/secure-response';
 import { verifyGoogleJWT } from '../../verifiers/verify-google-jwt';
-import { addAllTokensToResponse } from '../../session/add-all-tokens-to-response';
 import { createSession } from '../../session/create-session';
+import { SessionResponse } from '../../session/session-response';
 
 type Params = {
   incomingPathname: string;
@@ -27,8 +26,8 @@ export const handleCreateSession = async ({
   // Verify JWT ID-token depending on path & extract user's ID
   // NOTE: ensure verifiers involve CSRF protection
   let userId: UserId;
-  let passedCsrfCheck = false;
   try {
+    let passedCsrfCheck = false;
     switch (incomingPathname) {
       case PROVIDERS.google.pathname: {
         const result = await verifyGoogleJWT(request);
@@ -39,7 +38,6 @@ export const handleCreateSession = async ({
       default:
         throw Error();
     }
-
     // Fail safe
     if (!passedCsrfCheck) {
       throw Error();
@@ -50,14 +48,8 @@ export const handleCreateSession = async ({
 
   // Create new session and redirect with token cookies
   try {
-    const { sessionToken, refreshToken, csrfToken } = await createSession({ request, env, userId });
-    const response = addAllTokensToResponse({
-      response: new SecureResponse(null, { status: 302, headers: { Location: APP_URL } }),
-      sessionToken,
-      refreshToken,
-      csrfToken,
-    });
-    return response;
+    const session = await createSession({ request, env, userId });
+    return new SessionResponse(session);
   } catch {
     return new SecureResponse('Failed to create session', { status: 500 });
   }

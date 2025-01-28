@@ -22,5 +22,8 @@ export const findAllSessionsByUserId = async ({ env, userId }: Params): Promise<
     throw Error();
   }
 
+  // TODO: filtering below will fail because I'm not pulling all fields back
+  // ... need to refactor `isSession` / `Session` type to allow maybe properties
+
   return results.filter((result) => isSession(result));
 };

@@ -1,4 +1,4 @@
-import { SESSION_TOKEN_BYTES } from '../common/constants/config';
+import { SESSION_TOKEN_BYTES } from '../../common/constants/config';
 
 export const isValidSessionToken = (sessionToken: string): boolean => {
   // Length check: hex-based token must have x2 chars per byte

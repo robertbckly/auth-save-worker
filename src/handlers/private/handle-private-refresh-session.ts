@@ -1,11 +1,10 @@
-import { APP_URL } from '../../common/constants/config';
 import { SecureResponse } from '../../common/responses/secure-response';
 import { verifyCsrfToken } from '../../common/utils/csrf/verify-csrf-token';
-import { addAllTokensToResponse } from '../../session/add-all-tokens-to-response';
 import { authenticateSessionToken } from '../../session/authenticate-session';
-import type { UserId } from '../../common/types/user-id';
 import { killSession } from '../../session/kill-session';
 import { createSession } from '../../session/create-session';
+import { SessionResponse } from '../../session/session-response';
+import type { UserId } from '../../common/types/user-id';
 
 type Params = {
   request: Request;
@@ -50,20 +49,14 @@ export const handlePrivateRefreshSession = async ({ request, env }: Params): Pro
 
   // Create new session and redirect with token cookies
   try {
-    const { sessionToken, refreshToken, csrfToken } = await createSession({
+    const session = await createSession({
       request,
       env,
       userId,
-      // Carry forward refresh expiry to ensure absolute timeout
+      // Carry forward expiry to ensure absolute timeout
       refreshExpiry,
     });
-    const response = addAllTokensToResponse({
-      response: new SecureResponse(null, { status: 302, headers: { Location: APP_URL } }),
-      sessionToken,
-      refreshToken,
-      csrfToken,
-    });
-    return response;
+    return new SessionResponse(session);
   } catch {
     return new SecureResponse('Failed to create session', { status: 500 });
   }

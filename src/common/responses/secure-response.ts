@@ -1,9 +1,6 @@
-type Body = BodyInit | null;
-type Options = ResponseInit;
-
 export class SecureResponse extends Response {
-  constructor(body?: Body, options?: Options) {
-    super(body, options);
+  constructor(...args: ConstructorParameters<typeof Response>) {
+    super(...args);
 
     // HSTS
     this.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
