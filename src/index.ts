@@ -15,21 +15,21 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Remove trailing slash -- TODO improve
-    const path = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : url.pathname;
+    // Treat path with trailing slash as same
+    const path = url.pathname.replace(/(?!^)\/$/, '');
 
     // Reject anything but HTTPS
     if (url.protocol !== 'https:') {
       return new SecureResponse('HTTPS required', { status: 403 });
     }
 
-    // Route any authentication requests
+    // Route any session create/refresh requests
     // (CSRF protection included within)
     switch (path) {
-      case REFRESH_SESSION_PATH:
-        return await handlePrivateRefreshSession({ env, request });
       case PROVIDERS.google.pathname:
         return await handleCreateSession({ env, request, incomingPathname: url.pathname });
+      case REFRESH_SESSION_PATH:
+        return await handlePrivateRefreshSession({ env, request });
     }
 
     // Authenticate session
@@ -58,7 +58,7 @@ export default {
       return new SecureResponse('Forbidden', { status: 403 });
     }
 
-    // Route primary private API requests
+    // Route private, session-requiring requests
     // (after successful session authentication & anti-CSRF above)
     switch (path) {
       case '/':
