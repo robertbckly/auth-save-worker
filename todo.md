@@ -1,52 +1,28 @@
 # TODO
 
-- ~~generate 64-bit opaque session token~~
-- ~~bind a D1 instance for session storage~~
-- ~~add GET/PUT routing at root path~~
-- ~~check authz for each route~~
-- ~~bind an R2 instance for object storage~~
-- ~~read/write object on request~~
-- ~~read object in frontend app~~
-- ~~write similar find-user-id fn that also checks length of session id~~
-- ~~session listing for current user (new endpoint)~~
-- ~~COOKIE: fix samesite / crossorigin~~
-- ~~COOKIE: bind to other client info, e.g. user-agent... and reject + remove session on fail~~
-- ~~fix parcel proxy issue causing path mismatch for refresh cookie~~
+--> first **refactor** to make the below easier <--
 
-NEXT UP >>>>>
+## MAYBE
 
-- client should know to proactively hit refresh endpoint to ensure seamless UX
-- MAYBE?: switch to hashing session ID before saving in DB... so can't be leaked
+- switch to only storing token hashes to mitigate risk of leaking
 
-- CSRF:
-  https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#disallowing-simple-requests
-  https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#dealing-with-client-side-csrf-attacks-important
+## SECURITY
 
-- XSS: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+- disallow simple requests
+- mitigate client-side csrf
+- mitigate xss
+- mitigate injection (think all db stuff is vulnerable as it stands?)
+- implement session deletion endpoint (user controlled)
+- put limits on storage payloads (size, etc.)
+- add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
+- double check xss, injection, csp, csrf, replay, fixation, hijacking, etc.
 
-^ >>>>>
+## ACCOUNTS
 
-- AUTHN
-  - decouple from authn providers
-- PERF
-  - speed up session db via index? or redis?
-- SECURITY
-  - COOKIE
-    - anti-CSRF token
-      - https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
-      - ^ must use private session ID
-      - must research how to expose token to JS
-    - rolling renewal; rotation; absolute expiry NEXT UP <<<<
-    - allow user to delete session (i.e. sign out from all devices)
-    - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
-  - OBJECT PAYLOAD
-    - max size
-    - encryption
-    - xss prevention
-    - antivirus approach required?
-  - CSP / XSS / CSRF / replay / ?
-    - CSRF: https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
-    - fixation: https://developer.mozilla.org/en-US/docs/Web/Security/Types_of_attacks#session_fixation
-- PIPELINE
-  - add tests (use vite)
-  - add ci/cd stuff instead of cli deploy
+- decouple from authn providers (e.g. handle google account closure)
+
+## DEPLOY
+
+- measure / adapt db solution for performance
+- add tests (use vite)
+- add ci/cd stuff instead of cli deploy
