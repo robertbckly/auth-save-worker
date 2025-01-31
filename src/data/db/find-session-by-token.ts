@@ -27,9 +27,19 @@ export const findSessionByToken = async ({
   // Validate user input, even when using prepared statement
   throwOnInvalidToken(token);
 
+  // Overkill check just to ensure value is never unrestricted,
+  // given the use of SQL string concatenation
+  if (
+    tokenField !== 'PrivateId' &&
+    tokenField !== 'SessionToken' &&
+    tokenField !== 'RefreshToken'
+  ) {
+    throw Error('Invalid token field');
+  }
+
   const { results, success } = await env.db
-    .prepare(`SELECT ${FIELDS.join(',')} FROM UserSessions WHERE ? = ? LIMIT 1`)
-    .bind(tokenField, token)
+    .prepare(`SELECT ${FIELDS.join(',')} FROM UserSessions WHERE ${tokenField} = ? LIMIT 1`)
+    .bind(token)
     .run();
 
   if (!success) {
