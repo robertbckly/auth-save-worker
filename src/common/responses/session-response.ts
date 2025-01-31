@@ -7,8 +7,8 @@ import {
   CSRF_COOKIE_KEY,
   CSRF_COOKIE_MAX_AGE,
   APP_URL,
-} from '../common/constants/config';
-import { SecureResponse } from '../common/responses/secure-response';
+} from '../constants/config';
+import { SecureResponse } from './secure-response';
 
 type Params = {
   sessionToken: string;

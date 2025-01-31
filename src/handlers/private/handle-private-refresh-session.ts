@@ -3,7 +3,7 @@ import { verifyCsrfToken } from '../../common/utils/csrf/verify-csrf-token';
 import { authenticateSessionToken } from '../../session/authenticate-session';
 import { killSession } from '../../session/kill-session';
 import { createSession } from '../../session/create-session';
-import { SessionResponse } from '../../session/session-response';
+import { SessionResponse } from '../../common/responses/session-response';
 import type { UserId } from '../../common/types/user-id';
 
 type Params = {
