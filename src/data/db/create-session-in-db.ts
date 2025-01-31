@@ -13,16 +13,6 @@ type Params = {
   userAgent: string;
 };
 
-const FIELDS = [
-  'PrivateId',
-  'SessionToken',
-  'RefreshToken',
-  'RefreshExpiry',
-  'IdleExpiry',
-  'UserId',
-  'UserAgent',
-] satisfies (keyof Session)[];
-
 export const createSessionInDb = async ({
   env,
   privateId,
@@ -38,9 +28,23 @@ export const createSessionInDb = async ({
   throwOnInvalidToken(sessionToken);
   throwOnInvalidToken(refreshToken);
 
+  // Doing this manually to ensure fields cannot possibly be dynamic,
+  // given the use of SQL string concatenation. Also keeps sync below.
+  const session: Session = {
+    PrivateId: privateId,
+    SessionToken: sessionToken,
+    RefreshToken: refreshToken,
+    RefreshExpiry: refreshExpiry,
+    IdleExpiry: idleExpiry,
+    UserId: userId,
+    UserAgent: userAgent,
+  };
+
+  const fields = Object.keys(session);
+
   const { success } = await env.db
-    .prepare(`INSERT INTO UserSessions (${FIELDS}) VALUES (${FIELDS.map(() => '?')})`)
-    .bind(privateId, sessionToken, refreshToken, refreshExpiry, idleExpiry, userId, userAgent)
+    .prepare(`INSERT INTO UserSessions (${fields}) VALUES (${fields.map(() => '?')})`)
+    .bind(...Object.values(session))
     .run();
   if (!success) {
     throw Error();
