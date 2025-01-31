@@ -36,7 +36,7 @@ export default {
     let userId: UserId;
     let privateSessionId: string;
     try {
-      const session = await authenticateSessionToken({ env, request });
+      const session = await authenticateSessionToken({ env, request, type: 'SessionToken' });
       userId = session.UserId;
       privateSessionId = session.PrivateId;
     } catch {
@@ -54,7 +54,7 @@ export default {
     } catch {
       // Kill session on CSRF failure
       // (causes CSRF failure on subsequent use)
-      await killSession({ env, identifier: privateSessionId });
+      await killSession({ env, token: privateSessionId });
       return new SecureResponse('Forbidden', { status: 403 });
     }
 

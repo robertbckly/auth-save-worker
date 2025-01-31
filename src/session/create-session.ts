@@ -5,8 +5,8 @@ import {
 } from '../common/constants/config';
 import type { UserId } from '../common/types/user-id';
 import { createCsrfToken } from '../common/utils/csrf/create-csrf-token';
-import { dbCreateSession } from '../data/db/db-create-session';
-import { createSessionToken } from './token/create-session-token';
+import { createSessionInDb } from '../data/db/create-session-in-db';
+import { createUniqueToken } from './token/create-unique-token';
 
 type Params = {
   request: Request;
@@ -27,9 +27,9 @@ export const createSession = async ({
   userId,
   refreshExpiry: refreshExpiryInput,
 }: Params): Promise<Return> => {
-  const privateId = await createSessionToken(env, 'private');
-  const sessionToken = await createSessionToken(env, 'public');
-  const refreshToken = await createSessionToken(env, 'public');
+  const privateId = await createUniqueToken({ env, type: 'PrivateId' });
+  const sessionToken = await createUniqueToken({ env, type: 'SessionToken' });
+  const refreshToken = await createUniqueToken({ env, type: 'RefreshToken' });
   const csrfToken = await createCsrfToken({ env, privateSessionId: privateId });
   const userAgent = request.headers.get('user-agent') || UNKNOWN_USER_AGENT;
 
@@ -41,7 +41,7 @@ export const createSession = async ({
   const idleExpiry = new Date();
   idleExpiry.setSeconds(idleExpiry.getSeconds() + IDLE_TIMEOUT);
 
-  await dbCreateSession({
+  await createSessionInDb({
     env,
     privateId,
     sessionToken,

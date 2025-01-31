@@ -1,35 +1,40 @@
-import type { Session } from '../../common/types/session';
-import { isSession } from '../../common/utils/is-session';
-import { throwOnInvalidSessionToken } from '../../session/token/throw-on-invalid-session-token';
+import { throwOnInvalidToken } from '../../session/token/throw-on-invalid-token';
+import type { Session, TokenField } from '../../common/types/session';
 
 type Params = {
   env: Env;
-  sessionToken: string;
+  tokenField: TokenField;
+  token: string;
 };
+
+type Result = Pick<Session, (typeof FIELDS)[number]>;
+
+const FIELDS = [
+  'PrivateId',
+  'SessionToken',
+  'RefreshToken',
+  'RefreshExpiry',
+  'IdleExpiry',
+  'UserId',
+  'UserAgent',
+] satisfies (keyof Session)[];
 
 export const findSessionByToken = async ({
   env,
-  sessionToken,
-}: Params): Promise<Session | null> => {
-  // Validate first
-  throwOnInvalidSessionToken(sessionToken);
+  tokenField,
+  token,
+}: Params): Promise<Result | null> => {
+  // Validate user input, even when using prepared statement
+  throwOnInvalidToken(token);
 
   const { results, success } = await env.db
-    .prepare(
-      'SELECT PrivateId, SessionToken, RefreshToken, RefreshExpiry, IdleExpiry, UserId, UserAgent FROM UserSessions WHERE SessionToken = ? LIMIT 1'
-    )
-    .bind(sessionToken)
+    .prepare(`SELECT ${FIELDS.join(',')} FROM UserSessions WHERE ? = ? LIMIT 1`)
+    .bind(tokenField, token)
     .run();
 
   if (!success) {
     throw Error('DB error');
   }
 
-  const uncheckedSession = results[0];
-
-  if (!uncheckedSession || !isSession(uncheckedSession)) {
-    return null;
-  }
-
-  return uncheckedSession;
+  return (results[0] || null) as Result | null;
 };

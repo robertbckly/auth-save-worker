@@ -1,24 +1,20 @@
-import { throwOnInvalidSessionToken } from './token/throw-on-invalid-session-token';
+import { killSessionInDb } from '../data/db/kill-session-in-db';
+import { throwOnInvalidToken } from './token/throw-on-invalid-token';
 
 type Params = {
   env: Env;
   /**
    * Private session ID, session token, or refresh token
    */
-  identifier: string;
+  token: string;
 };
 
-export const killSession = async ({ env, identifier }: Params): Promise<void> => {
+export const killSession = async ({ env, token }: Params): Promise<void> => {
   try {
     // Avoid hitting DB with invalid session ID
-    throwOnInvalidSessionToken(identifier);
+    throwOnInvalidToken(token);
     // Delete session
-    await env.db
-      .prepare(
-        'DELETE FROM UserSessions WHERE PrivateId = ? OR SessionToken = ? OR RefreshToken = ? LIMIT 1'
-      )
-      .bind(identifier, identifier, identifier)
-      .run();
+    await killSessionInDb({ env, token });
   } catch {
     // Do nothing
   }

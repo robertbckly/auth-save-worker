@@ -1,4 +1,4 @@
-import { throwOnInvalidSessionToken } from '../../session/token/throw-on-invalid-session-token';
+import { throwOnInvalidToken } from '../../session/token/throw-on-invalid-token';
 
 type Params = {
   env: Env;
@@ -12,7 +12,7 @@ export const updateSessionIdleExpiry = async ({
   idleExpiry,
 }: Params): Promise<boolean> => {
   // Validate first
-  throwOnInvalidSessionToken(token);
+  throwOnInvalidToken(token);
 
   const { success } = await env.db
     .prepare(

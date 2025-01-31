@@ -13,7 +13,7 @@ export const CSRF_COOKIE_MAX_AGE = SESSION_COOKIE_MAX_AGE; // same as session
 
 export const IDLE_TIMEOUT = 5 * 24 * 3600; // 5d in seconds
 
-export const SESSION_TOKEN_BYTES = 16; // 128-bit (IMPORTANT)
+export const UNIQUE_TOKEN_BYTES = 16; // 128-bit (IMPORTANT)
 export const CSRF_RANDOM_BYTES = 2; // 16-bit (only to avoid same-second collision)
 
 // CSRF token length = (random + SHA-256) * 2 chars for hex + 1 for dot separator

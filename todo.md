@@ -1,6 +1,10 @@
 # TODO
 
 --> first **refactor** to make the below easier <--
+^ I want this to be more organised, composable, readable...
+^ probably a simplification process ?
+
+--> Use Prisma ORM? Looks pretty good
 
 ## MAYBE
 
@@ -11,11 +15,11 @@
 - disallow simple requests
 - mitigate client-side csrf
 - mitigate xss
-- mitigate injection (think all db stuff is vulnerable as it stands?)
 - implement session deletion endpoint (user controlled)
 - put limits on storage payloads (size, etc.)
 - add logging https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#logging-sessions-life-cycle-monitoring-creation-usage-and-destruction-of-session-ids
 - double check xss, injection, csp, csrf, replay, fixation, hijacking, etc.
+  - e.g. check all queries are prepared statements
 
 ## ACCOUNTS
 

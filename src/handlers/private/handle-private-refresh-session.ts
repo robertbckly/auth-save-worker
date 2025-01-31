@@ -18,7 +18,7 @@ export const handlePrivateRefreshSession = async ({ request, env }: Params): Pro
 
   // Authenticate session using refresh token & check CSRF
   try {
-    const session = await authenticateSessionToken({ request, env, type: 'refresh' });
+    const session = await authenticateSessionToken({ request, env, type: 'RefreshToken' });
     privateSessionId = session.PrivateId;
     userId = session.UserId;
     refreshExpiry = session.RefreshExpiry;
@@ -43,7 +43,7 @@ export const handlePrivateRefreshSession = async ({ request, env }: Params): Pro
     // Kill existing session
     // (applicable whether authn successful or not)
     if (privateSessionId) {
-      await killSession({ env, identifier: privateSessionId });
+      await killSession({ env, token: privateSessionId });
     }
   }
 
