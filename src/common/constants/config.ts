@@ -1,6 +1,8 @@
 export const APP_URL = 'https://localhost:1234';
 export const REFRESH_SESSION_PATH = '/refresh-session';
 
+export const CONTENT_TYPE = 'application/json';
+
 // Prefixed with `__Host` for security
 export const SESSION_COOKIE_KEY = '__Host-id';
 export const CSRF_COOKIE_KEY = '__Host-csrf';

@@ -11,8 +11,8 @@ type Params = {
 };
 
 // Based on OWASP's Signed Double-Submit Cookie pattern
-// "ensures that an attacker cannot create and inject their own, known,
-// CSRF token into the victim's authenticated session"
+//  - Adds protection compared to simply checking for a custom header,
+//    even though that's possibly sufficient
 export const createCsrfToken = async ({
   env,
   privateSessionId,

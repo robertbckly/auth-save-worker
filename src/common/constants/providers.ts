@@ -1,6 +1,7 @@
-type Provider = {
+export type Provider = {
   prefix: string;
   pathname: `/${string}`;
+  expectedContentType: string;
   csrf: {
     keyInBody: string;
     keyInCookie: string;
@@ -21,6 +22,7 @@ export const PROVIDERS = {
   google: {
     prefix: 'google',
     pathname: '/google',
+    expectedContentType: 'application/x-www-form-urlencoded',
     csrf: {
       keyInBody: 'g_csrf_token',
       keyInCookie: 'g_csrf_token',

@@ -1,3 +1,5 @@
+import { CONTENT_TYPE } from '../constants/config';
+
 export class SecureResponse extends Response {
   constructor(...args: ConstructorParameters<typeof Response>) {
     super(...args);
@@ -12,7 +14,7 @@ export class SecureResponse extends Response {
 
     // CORB / MIME type
     // (assuming API will only respond with JSON)
-    this.headers.set('Content-Type', 'application/json');
+    this.headers.set('Content-Type', CONTENT_TYPE);
     this.headers.set('X-Content-Type-Options', 'nosniff');
 
     // CORP
