@@ -9,9 +9,9 @@ import { handlePrivateReadSessions } from './handlers/private/handle-private-rea
 import { handlePrivateReadWriteObject } from './handlers/private/handle-private-read-write-object';
 import { authenticateSessionToken } from './session/authenticate-session';
 import { killSession } from './session/kill-session';
-import type { UserId } from './common/types/user-id';
 import { getProviderForRoute } from './common/utils/get-provider-for-route';
 import { TRAILING_SLASH_REGEX } from './common/constants/regex';
+import type { UserId } from './common/types/user-id';
 
 export default {
   async fetch(request, env) {
@@ -32,8 +32,7 @@ export default {
       return new SecureResponse('Content type not allowed', { status: 415 });
     }
 
-    // Route any session create/refresh requests
-    // (CSRF protection included within)
+    // Route session create/refresh request (CSRF protection included within)
     switch (path) {
       case PROVIDERS.google.pathname:
         return await handleCreateSession({ env, request, incomingPathname: url.pathname });
@@ -54,21 +53,15 @@ export default {
 
     // Verify CSRF token
     try {
-      const passedCsrfCheck: boolean = await verifyCsrfToken({
-        request,
-        env,
-        privateSessionId,
-      });
+      const passedCsrfCheck: boolean = await verifyCsrfToken({ request, env, privateSessionId });
       if (!passedCsrfCheck) throw Error();
     } catch {
       // Kill session on CSRF failure
-      // (causes CSRF failure on subsequent use)
       await killSession({ env, token: privateSessionId });
       return new SecureResponse('Forbidden', { status: 403 });
     }
 
-    // Route private, session-requiring requests
-    // (after successful session authentication & anti-CSRF above)
+    // Route private, session-requiring request
     switch (path) {
       case '/':
         return await handlePrivateReadWriteObject({ request, env, userId });
