@@ -13,7 +13,6 @@ export class SecureResponse extends Response {
     // this.headers.set('Access-Control-Allow-Headers', CSRF_HEADER);
 
     // CORB / MIME type
-    // (assuming API will only respond with JSON)
     this.headers.set('Content-Type', CONTENT_TYPE);
     this.headers.set('X-Content-Type-Options', 'nosniff');
 
