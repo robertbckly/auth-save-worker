@@ -1,4 +1,4 @@
-# AuthSave
+# AuthSave (Cloudflare Worker)
 
 ## Overview
 
